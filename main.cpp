@@ -1,6 +1,18 @@
-#include <iostream>
+#include <ogdf/basic/graph_generators.h>
+#include <ogdf/layered/DfsAcyclicSubgraph.h>
+#include <ogdf/fileformats/GraphIO.h>
 
-int main() {
-    std::cout << "Hello, World!" << std::endl;
+using namespace ogdf;
+
+int main()
+{
+    Graph G;
+    randomSimpleGraph(G, 10, 20);
+
+    DfsAcyclicSubgraph DAS;
+    DAS.callAndReverse(G);
+
+    GraphIO::write(G, "output-acyclic-graph.gml", GraphIO::writeGML);
+
     return 0;
 }
