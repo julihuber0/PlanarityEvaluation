@@ -1,18 +1,37 @@
-#include <ogdf/basic/graph_generators.h>
-#include <ogdf/layered/DfsAcyclicSubgraph.h>
 #include <ogdf/fileformats/GraphIO.h>
-
+#include <ogdf/layered/MedianHeuristic.h>
+#include <ogdf/layered/OptimalHierarchyLayout.h>
+#include <ogdf/layered/OptimalRanking.h>
+#include <ogdf/layered/SugiyamaLayout.h>
+#include <ogdf/basic/graph_generators.h>
+ 
 using namespace ogdf;
 
 int main()
 {
     Graph G;
-    randomSimpleGraph(G, 10, 20);
+    GraphAttributes GA(G,
+                       GraphAttributes::nodeGraphics |
+                           GraphAttributes::edgeGraphics |
+                           GraphAttributes::nodeLabel |
+                           GraphAttributes::edgeStyle |
+                           GraphAttributes::nodeStyle |
+                           GraphAttributes::nodeTemplate);
+    randomSimpleGraph(G, 100, 200);
 
-    DfsAcyclicSubgraph DAS;
-    DAS.callAndReverse(G);
+    SugiyamaLayout SL;
+    SL.setRanking(new OptimalRanking);
+    SL.setCrossMin(new MedianHeuristic);
 
-    GraphIO::write(G, "output-acyclic-graph.gml", GraphIO::writeGML);
+    OptimalHierarchyLayout *ohl = new OptimalHierarchyLayout;
+    ohl->layerDistance(30.0);
+    ohl->nodeDistance(25.0);
+    ohl->weightBalancing(0.8);
+    SL.setLayout(ohl);
+
+    SL.call(GA);
+    GraphIO::write(GA, "output-unix-history-hierarchical.gml", GraphIO::writeGML);
+    GraphIO::write(GA, "output-unix-history-hierarchical.svg", GraphIO::drawSVG);
 
     return 0;
 }
