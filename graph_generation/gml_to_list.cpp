@@ -70,6 +70,8 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+    outFile << "N=" << nodeCount << endl;
+
     for (int k = 0; k < list.size(); ++k) {
         outFile << k + 1 << ": ";
         for(int m = 0; m < list[k].size(); ++m) {
