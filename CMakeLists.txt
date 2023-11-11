@@ -18,3 +18,5 @@ target_include_directories(Test PRIVATE "${OGDF_INCLUDE_DIRS}")
 target_link_libraries(Test OGDF)
 target_include_directories(Graph_Generator PRIVATE "${OGDF_INCLUDE_DIRS}")
 target_link_libraries(Graph_Generator OGDF)
+
+add_executable(Adjacency_Generator graph_generation/gml_to_list.cpp)
