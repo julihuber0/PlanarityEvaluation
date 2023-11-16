@@ -63,7 +63,8 @@ int main(int argc, char *argv[]) {
         j += 2;
     }
 
-    ofstream outFile(argv[2]);
+    string inFile(argv[1]);
+    ofstream outFile(inFile.substr(0, inFile.length() - 4) + ".txt");
 
     if(!outFile.is_open()) {
         printf("Unable to open output file!\n");
@@ -73,11 +74,11 @@ int main(int argc, char *argv[]) {
     outFile << "N=" << nodeCount << endl;
 
     for (int k = 0; k < list.size(); ++k) {
-        outFile << k + 1 << ": ";
+        outFile << k << ": ";
         for(int m = 0; m < list[k].size(); ++m) {
-            outFile << list[k][m] + 1 << " ";
+            outFile << list[k][m] << " ";
         }
-        outFile << "0" << endl;
+        outFile << "-1" << endl;
     }
 
     outFile.close();
