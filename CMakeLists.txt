@@ -3,7 +3,7 @@ project(PlanarityEvaluationFramework CXX)
 
 set(OGDF_CONFIG_SEARCH_PATH CACHE PATH "C-Projects/OGDF/debug")
 
-set(CMAKE_PREFIX_PATH "/home/julian/C-Projects/OGDF/debug")
+set(CMAKE_PREFIX_PATH "/home/huber/C-Projects/OGDF/debug")
 
 find_package(OGDF REQUIRED)
 if(NOT OGDF_FOUND)
@@ -15,13 +15,16 @@ endif()
 add_executable(Graph_Generator graph_generation/graph_generation.cpp)
 add_executable(OGDF_Test ogdf_test.cpp)
 add_executable(Adjacency_Generator graph_generation/gml_to_list.cpp)
+add_executable(BoyerMyrvoldEdgeAddition algorithms/BoyerMyrvoldEdgeAddition.cpp)
 
 set_target_properties(Graph_Generator PROPERTIES RUNTIME_OUTPUT_DIRECTORY graph_generation)
 
 #target_link_libraries(Test OGDF)
 target_link_libraries(Graph_Generator OGDF)
 target_link_libraries(OGDF_Test OGDF)
+target_link_libraries(BoyerMyrvoldEdgeAddition OGDF)
 
 #target_include_directories(Test PRIVATE "${OGDF_INCLUDE_DIRS}")
 target_include_directories(Graph_Generator PRIVATE "${OGDF_INCLUDE_DIRS}")
 target_include_directories(OGDF_Test PRIVATE "${OGDF_INCLUDE_DIRS}")
+target_include_directories(BoyerMyrvoldEdgeAddition PRIVATE "${OGDF_INCLUDE_DIRS}")
