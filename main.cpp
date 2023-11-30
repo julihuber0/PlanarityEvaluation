@@ -8,10 +8,10 @@
 #include <iostream>
 
 using namespace ogdf;
+using namespace std;
 
 int main()
 {
-    for (int i = 1; i < 21; ++i) {
         Graph G;
         GraphAttributes GA(G,
                            GraphAttributes::nodeGraphics |
@@ -20,11 +20,18 @@ int main()
                            GraphAttributes::edgeStyle |
                            GraphAttributes::nodeStyle |
                            GraphAttributes::nodeTemplate);
-        GraphIO::read(GA,G, "graph_generation/random" + std::to_string(i) + ".gml", GraphIO::readGML);
+        GraphIO::read(GA,G, "graph_generation/K_15.gml", GraphIO::readGML);
+        NodeArray<int> n(G, 1);
+        //Array<node> a(G.numberOfNodes());
+        //printf("Index: %d\n", a[2]->degree());
+        for(int i = 0; i < G.numberOfNodes(); ++i) {
+            printf("TEST: %d\n", n[i]);
+        }
+
         BoyerMyrvold b;
         bool planar = b.isPlanar(G);
-        printf("Graph %d: %d\n", i, planar);
-    }
+        printf("Graph: %d\n", planar);
+
 
 
 

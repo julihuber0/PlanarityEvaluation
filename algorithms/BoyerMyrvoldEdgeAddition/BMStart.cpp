@@ -20,13 +20,15 @@ typedef struct
     int  sign;
 } graphNode;
 
+graphNode initGraphNode = {NIL, 0, {NIL, NIL}, TYPE_UNKNOWN, 1};
+
 typedef struct
 {
     int DFSParent, leastAncestor, Lowpoint, adjacentTo;
     int pertinentBicompList, separatedDFSChildList, fwdArcList;
 } vertexRec;
 
-typedef vertexRec * vertexRecP;
+typedef vertexRec;
 
 typedef struct
 {
@@ -78,21 +80,7 @@ NodeArray<extFaceLinkRec> extFace;
 
 stack<int> theStack;
 
-typedef struct
-{
-    vertexRecP V;
-    int N, M, internalFlags, embedFlags;
-    isolatorContext IC;
-    vector<lcnode> BicompLists, DFSChildLists;
-    stack<int> theStack;
-    vector<int> buckets;
-    vector<lcnode> bin;
-    vector<extFaceLinkRec> extFace;
-} additionalGraphAttributes;
-
-additionalGraphAttributes addGAttr;
-
-typedef additionalGraphAttributes * additionalGraphAttributesP;
+int N, M, internalFlags, embedFlags;
 
 void  _CreateSortedSeparatedDFSChildLists(Graph&);
 
@@ -157,19 +145,19 @@ int _GetPertinentChildBicomp(int W)
 
     /* If the bicomp list is empty, then we just return NIL */
 
-    if ((RootId=addGAttr.V[W].pertinentBicompList) == NIL)
+    if ((RootId=vertexRecNodeArray[W].pertinentBicompList) == NIL)
         return NIL;
 
     /* Return the RootVertex, which is computed by adding N because we
         subtracted N before storing it in the bicomp list */
 
-    return RootId + addGAttr.N;
+    return RootId + N;
 }
 
 #else
 
 #define _GetPertinentChildBicomp(W) \
-        (addGAttr.V[W].pertinentBicompList==NIL ? NIL : addGAttr.V[W].pertinentBicompList + addGAttr.N)
+        (vertexRecNodeArray[W].pertinentBicompList==NIL ? NIL : vertexRecNodeArray[W].pertinentBicompList + N)
 
 #endif
 
@@ -186,13 +174,11 @@ void _OrientVerticesInBicomp(Graph &theEmbedding, int BicompRoot, int PreserveSi
 int  _JoinBicomps(Graph &theEmbedding) {}
 
 void _initGraphAttributes(Graph &G) {
-    addGAttr.BicompLists.resize(1);
-    addGAttr.BicompLists[0].resize(G.numberOfNodes());
 }
 
 int main(int argc, char* argv[])
 {
-    vector<int> v;
+    Graph g;
     return 0;
 }
 
