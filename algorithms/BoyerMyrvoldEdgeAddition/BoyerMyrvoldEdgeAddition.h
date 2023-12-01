@@ -32,24 +32,22 @@ namespace ogdf {
         explicit BoyerMyrvoldEdgeAddition(Graph &g);
 
         typedef struct {
-            int v;
             int visited;
-            int link[2];
+            node link[2];
+            int type;
+            node DFSParent, leastAncestor, Lowpoint, adjacentTo;
+            node pertinentBicompList, separatedDFSChildList, fwdArcList;
+        } graphVertex;
+
+        typedef struct {
+            int visited;
+            edge link[2];
             int type;
             int sign;
-        } graphNode;
-
-        graphNode initGraphNode = {NIL, 0, {NIL, NIL}, TYPE_UNKNOWN, 1};
+        } graphEdge;
 
         typedef struct {
-            int DFSParent, leastAncestor, Lowpoint, adjacentTo;
-            int pertinentBicompList, separatedDFSChildList, fwdArcList;
-        } vertexRec;
-
-        typedef vertexRec *vertexRecP;
-
-        typedef struct {
-            int link[2];
+            node link[2];
             int inversionFlag;
         } extFaceLinkRec;
 
@@ -58,8 +56,8 @@ namespace ogdf {
 
         typedef struct {
             int minorType;
-            int v, r, x, y, w, px, py, z;
-            int ux, dx, uy, dy, dw, uz, dz;
+            node v, r, x, y, w, px, py, z;
+            node ux, dx, uy, dy, dw, uz, dz;
         } isolatorContext;
 
 #define FLAGS_MINOR_A         1
@@ -77,32 +75,32 @@ namespace ogdf {
 #define FLAGS_MINOR_E7        2048
 
         typedef struct {
-            int prev, next;
+            node prev, next;
         } lcnode;
 
         typedef struct {
             NodeArray<lcnode> nodeList;
-            int head;
+            node head;
         } listCollection;
 
         void LCInit(listCollection&);
 
-        int LCAppend(listCollection&, int, int);
+        int LCAppend(listCollection&, node, node);
 
-        int LCPrepend(listCollection&, int, int);
+        int LCPrepend(listCollection&, node, node);
 
-        int LCGetNext(listCollection&, int, int);
+        int LCGetNext(listCollection&, node, node);
 
-        int gp_GetTwinArc(int);
+        int gp_GetTwinArc(node);
 
         typedef struct {
-            NodeArray<graphNode> G;
-            NodeArray<graphNode> graphRootNodeArray;
-            EdgeArray<graphNode> graphEdgeArray;
-            NodeArray<vertexRec> V;
+            NodeArray<graphVertex> G;
+            NodeArray<graphVertex> graphRootNodeArray;
+            EdgeArray<graphEdge> graphEdgeArray;
+            isolatorContext IC;
             NodeArray<int> buckets;
             NodeArray<extFaceLinkRec> extFace;
-            stack<int> theStack;
+            stack<node> theStack;
             int N, M, internalFlags, embedFlags;
             listCollection BicompLists, DFSChildLists, bin;
         }graphData;
