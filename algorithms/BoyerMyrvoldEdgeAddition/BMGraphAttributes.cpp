@@ -28,6 +28,40 @@ namespace ogdf {
     };
 
     node BMGraphAttributes::LCGetNext(listCollection & listColl, node theList, node theNode) {
+        node next = listColl.nodeList[theNode].next;
+        return next==theList ? nullptr : next;
+    }
+
+    node BMGraphAttributes::LCGetPrev(listCollection & listColl, node theList, node theNode) {
+        node prev = listColl.nodeList[theNode].prev;
+        return prev==theList ? nullptr : prev;
+    }
+
+    node BMGraphAttributes::LCAppend(listCollection & listColl, node theList, node theNode) {
+        if(theList == nullptr) {
+            listColl.nodeList[theNode].next = listColl.nodeList[theNode].prev = theNode;
+            theList = theNode;
+        } else {
+            node pred = listColl.nodeList[theList].prev;
+
+            listColl.nodeList[theList].prev = theNode;
+            listColl.nodeList[theNode].next = theList;
+            listColl.nodeList[theNode].prev = pred;
+            listColl.nodeList[pred].next = theNode;
+        }
+        return theList;
+    }
+
+    node BMGraphAttributes::LCPrepend(listCollection & listColl, node theList, node theNode) {
+        node newList = LCAppend(listColl, theList, theNode);
+        newList = listColl.nodeList[newList].prev;
+        return newList;
+    }
+
+    void BMGraphAttributes::LCCopy(listCollection & dst, listCollection & src) {
+        for(node n: src.nodeList.graphOf()->nodes) {
+            dst.nodeList[n] = src.nodeList[n];
+        }
     }
 
 }

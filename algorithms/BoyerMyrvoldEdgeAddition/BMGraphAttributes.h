@@ -11,10 +11,39 @@
 #ifndef PLANARITYEVALUATIONFRAMEWORK_BMGRAPHATTRIBUTES_H
 #define PLANARITYEVALUATIONFRAMEWORK_BMGRAPHATTRIBUTES_H
 
+#define NIL -1
+#define NOTOK -2
+
 using namespace std;
 
 namespace ogdf {
     class BMGraphAttributes {
+
+        typedef struct {
+            node n;
+            int status;
+        } nodeWithStatus;
+
+        nodeWithStatus getNodeWithStatus(node& n, int status) {
+            nodeWithStatus toReturn;
+            toReturn.n = n;
+            toReturn.status = status;
+            return toReturn;
+        }
+
+        nodeWithStatus getNodeWithNIL(node& n) {
+            nodeWithStatus toReturn;
+            toReturn.n = n;
+            toReturn.status = NIL;
+            return toReturn;
+        }
+
+        nodeWithStatus getNodeWithNOTOK(node& n) {
+            nodeWithStatus toReturn;
+            toReturn.n = n;
+            toReturn.status = NOTOK;
+            return toReturn;
+        }
 
         typedef struct {
             int visited;
@@ -46,7 +75,7 @@ namespace ogdf {
         } isolatorContext;
 
         isolatorContext initIC = {-1, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
-                                  nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr}
+                                  nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
 #define FLAGS_MINOR_A         1
 #define FLAGS_MINOR_B         2
@@ -63,7 +92,8 @@ namespace ogdf {
 #define FLAGS_MINOR_E7        2048
 
         typedef struct {
-            node prev, next;
+            node next, prev;
+            int statusCode;
         } lcnode;
 
         typedef struct {
