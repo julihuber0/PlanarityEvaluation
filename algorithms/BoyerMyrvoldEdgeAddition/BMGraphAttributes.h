@@ -91,6 +91,10 @@ namespace ogdf {
 
         node LCGetNext(listCollection&, node, node);
 
+        node LCGetPrev(listCollection&, node, node);
+
+        void LCCopy(listCollection&, listCollection&);
+
         node gp_GetTwinArc(node);
 
     };

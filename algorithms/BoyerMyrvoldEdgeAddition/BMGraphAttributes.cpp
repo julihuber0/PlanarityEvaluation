@@ -27,4 +27,7 @@ namespace ogdf {
         l.head = nullptr;
     };
 
+    node BMGraphAttributes::LCGetNext(listCollection & listColl, node theList, node theNode) {
+    }
+
 }
