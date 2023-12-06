@@ -19,6 +19,8 @@ using namespace std;
 namespace ogdf {
     class BMGraphAttributes {
 
+    public: explicit BMGraphAttributes(Graph &g);
+
         typedef struct {
             node n;
             int status;
@@ -46,6 +48,7 @@ namespace ogdf {
         }
 
         typedef struct {
+            int v;
             int visited;
             node link[2];
             int type;
@@ -101,6 +104,7 @@ namespace ogdf {
             node head;
         } listCollection;
 
+        public:
         NodeArray<graphVertex> vertexData;
         NodeArray<graphVertex> rootVertexData;
         EdgeArray<graphEdge> edgeData;
@@ -110,8 +114,6 @@ namespace ogdf {
         stack<node> theStack;
         int N, M, internalFlags, embedFlags;
         listCollection BicompLists, DFSChildLists, bin;
-
-        BMGraphAttributes(Graph&);
 
         static void LCInit(listCollection&, Graph&);
 

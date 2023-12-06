@@ -7,12 +7,14 @@
 #include <ogdf/planarity/BoyerMyrvold.h>
 #include <iostream>
 #include <bits/stdc++.h>
+#include "BMGraphAttributes.h"
 
 #ifndef PLANARITYEVALUATIONFRAMEWORK_BOYERMYRVOLDEDGEADDITION_H
 #define PLANARITYEVALUATIONFRAMEWORK_BOYERMYRVOLDEDGEADDITION_H
 
 #define NIL		(-1)
 #define TYPE_UNKNOWN 8
+#define OK 0
 
 #define EDGE_DFSCHILD           1
 #define EDGE_FORWARD            2
@@ -30,6 +32,12 @@ namespace ogdf {
     class BoyerMyrvoldEdgeAddition {
 
         explicit BoyerMyrvoldEdgeAddition(Graph &g);
+
+        Graph sourceGraph;
+
+        BMGraphAttributes theGraph;
+
+        int gp_CreateDFSTree();
 
         void _CreateSortedSeparatedDFSChildLists();
 
@@ -63,7 +71,7 @@ namespace ogdf {
 
         int _JoinBicomps();
 
-        int _GetPertinentChildBicomp(int);
+        node _GetPertinentChildBicomp(node);
     };
 
 

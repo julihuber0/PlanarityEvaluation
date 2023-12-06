@@ -6,7 +6,7 @@
 
 namespace ogdf {
 
-    BMGraphAttributes::BMGraphAttributes(ogdf::Graph &g):
+BMGraphAttributes::BMGraphAttributes(ogdf::Graph &g):
         vertexData(g),
         rootVertexData(g),
         edgeData(g),
@@ -33,8 +33,10 @@ namespace ogdf {
     }
 
     node BMGraphAttributes::LCGetPrev(listCollection & listColl, node theList, node theNode) {
-        node prev = listColl.nodeList[theNode].prev;
-        return prev==theList ? nullptr : prev;
+        if (theList == nullptr) return nullptr;
+        if (theNode == nullptr) return listColl.nodeList[theList].prev;
+        if (theNode == theList) return nullptr;
+        return listColl.nodeList[theNode].prev;
     }
 
     node BMGraphAttributes::LCAppend(listCollection & listColl, node theList, node theNode) {
