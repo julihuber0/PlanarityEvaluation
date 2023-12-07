@@ -21,31 +21,7 @@ namespace ogdf {
 
     public: explicit BMGraphAttributes(Graph &g);
 
-        typedef struct {
-            node n;
-            int status;
-        } nodeWithStatus;
-
-        nodeWithStatus getNodeWithStatus(node& n, int status) {
-            nodeWithStatus toReturn;
-            toReturn.n = n;
-            toReturn.status = status;
-            return toReturn;
-        }
-
-        nodeWithStatus getNodeWithNIL(node& n) {
-            nodeWithStatus toReturn;
-            toReturn.n = n;
-            toReturn.status = NIL;
-            return toReturn;
-        }
-
-        nodeWithStatus getNodeWithNOTOK(node& n) {
-            nodeWithStatus toReturn;
-            toReturn.n = n;
-            toReturn.status = NOTOK;
-            return toReturn;
-        }
+        BMGraphAttributes();
 
         typedef struct {
             int v;

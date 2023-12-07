@@ -31,11 +31,13 @@ namespace ogdf {
 
     class BoyerMyrvoldEdgeAddition {
 
-        explicit BoyerMyrvoldEdgeAddition(Graph &g);
+    public: explicit BoyerMyrvoldEdgeAddition(Graph &g);
 
-        Graph sourceGraph;
+        Graph& sourceGraph;
 
         BMGraphAttributes theGraph;
+
+        edge getTwinArc(edge&);
 
         int gp_CreateDFSTree();
 

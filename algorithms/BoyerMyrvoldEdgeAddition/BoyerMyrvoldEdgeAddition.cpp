@@ -2,6 +2,10 @@
 // Created by huber on 29.11.23.
 //
 
+#include <ogdf/layered/SugiyamaLayout.h>
+#include <ogdf/layered/OptimalRanking.h>
+#include <ogdf/layered/MedianHeuristic.h>
+#include <ogdf/basic/Graph_d.h>
 #include "BoyerMyrvoldEdgeAddition.h"
 
 namespace ogdf {
@@ -11,10 +15,13 @@ namespace ogdf {
 
     int BoyerMyrvoldEdgeAddition::gp_CreateDFSTree() {
         int DFI = 0;
-        node I, uparent, u, e, J;
+        node I, uparent, u, J;
+        edge e;
 
-        if(theGraph.internalFlags & FLAGS_DFSNUMBERED) return OK;
-        //TODO Clear stack
+        //if (theGraph==nullptr) return NOTOK;
+        //if(theGraph.internalFlags & FLAGS_DFSNUMBERED) return OK;
+        stack<node> dfsNodes;
+        stack<edge> dfsEdges;
 
         for(node n : sourceGraph.nodes) {
             theGraph.vertexData[n].visited = 0;
@@ -24,57 +31,93 @@ namespace ogdf {
             if (DFI >= sourceGraph.numberOfEdges()) break;
             if (theGraph.vertexData[n].DFSParent != nullptr) continue;
 
-            theGraph.theStack.push(nullptr);
-            theGraph.theStack.push(nullptr);
-            while(theGraph.theStack.top() != nullptr) {
-                e = theGraph.theStack.top();
-                uparent = theGraph.theStack.top();
-                u = uparent == nullptr ? n : e;
+            dfsNodes.push(nullptr);
+            dfsEdges.push(nullptr);
+            while(!dfsNodes.empty()) {
+                e = dfsEdges.top();
+                dfsEdges.pop();
+                uparent = dfsNodes.top();
+                dfsNodes.pop();
+                u = uparent == nullptr ? n : e->opposite();
 
                 if(!theGraph.vertexData[u].visited) {
                     theGraph.vertexData[u].visited = 1;
                     theGraph.vertexData[u].v = DFI++;
                     theGraph.vertexData[u].DFSParent = uparent;
-                    if(e != nullptr) {
-                        theGraph.vertexData[e].type = EDGE_DFSCHILD;
 
-                        theGraph.vertexData[theGraph.vertexData[e].link[0]].link[1] = theGraph.vertexData[e].link[1];
+                    if(e != nullptr) {
+                        theGraph.edgeData[e].type = EDGE_DFSCHILD;
+
+                        /*theGraph.vertexData[theGraph.vertexData[e].link[0]].link[1] = theGraph.vertexData[e].link[1];
                         theGraph.vertexData[theGraph.vertexData[e].link[1]].link[0] = theGraph.vertexData[e].link[0];
 
                         theGraph.vertexData[e].link[0] =theGraph.vertexData[uparent].link[0];
                         theGraph.vertexData[e].link[1] = uparent;
 
                         theGraph.vertexData[uparent].link[0] = e;
-                        theGraph.vertexData[theGraph.vertexData[e].link[0]].link[1] = e;
+                        theGraph.vertexData[theGraph.vertexData[e].link[0]].link[1] = e;*/
                     }
 
-                    J = theGraph.vertexData[u].link[0];
-                    while (true) {
-                        //TODO
+                    for (adjEntry a : u->adjEntries) {
+                        dfsNodes.push(a->twinNode());
+                        dfsEdges.push(a->theEdge());
                     }
                 } else {
+                    edge twinEdge = e->adjSource()->theEdge();
                     if(theGraph.vertexData[uparent].v < theGraph.vertexData[u].v) {
-                        theGraph.vertexData[e].type = EDGE_FORWARD;
+                        theGraph.edgeData[e].type = EDGE_FORWARD;
 
-                        theGraph.vertexData[theGraph.vertexData[e].link[0]].link[1] = theGraph.vertexData[e].link[1];
+                        /*theGraph.vertexData[theGraph.vertexData[e].link[0]].link[1] = theGraph.vertexData[e].link[1];
                         theGraph.vertexData[theGraph.vertexData[e].link[1]].link[0] = theGraph.vertexData[e].link[0];
 
                         theGraph.vertexData[e].link[0] = uparent;
                         theGraph.vertexData[e].link[1] = theGraph.vertexData[uparent].link[1];
 
                         theGraph.vertexData[uparent].link[1] = e;
-                        theGraph.vertexData[theGraph.vertexData[e].link[1]].link[0] = e;
-                    } else if (theGraph.vertexData[theGraph.gp_GetTwinArc(e)].type == EDGE_FORWARD) {
-                        theGraph.vertexData[e].type = EDGE_DFSPARENT;
+                        theGraph.vertexData[theGraph.vertexData[e].link[1]].link[0] = e;*/
                     } else {
-                        theGraph.vertexData[e].type = EDGE_BACK;
+                        theGraph.edgeData[e].type = EDGE_BACK;
                     }
                 }
             }
         }
 
+        Graph::HiddenEdgeSet hiddenEdges(sourceGraph);
+        for(edge ed : sourceGraph.edges) {
+            if (theGraph.edgeData[ed].type != EDGE_DFSPARENT && theGraph.edgeData[ed].type != EDGE_DFSCHILD) {
+                hiddenEdges.hide(ed);
+            }
+        }
+
+        GraphAttributes GA(sourceGraph,
+                           GraphAttributes::nodeGraphics |
+                           GraphAttributes::edgeGraphics |
+                           GraphAttributes::nodeLabel |
+                           GraphAttributes::edgeStyle |
+                           GraphAttributes::nodeStyle |
+                           GraphAttributes::nodeTemplate);
+
+        SugiyamaLayout SL;
+        SL.setRanking(new OptimalRanking);
+        SL.setCrossMin(new MedianHeuristic);
+
+        OptimalHierarchyLayout *ohl = new OptimalHierarchyLayout;
+        ohl->layerDistance(30.0);
+        ohl->nodeDistance(25.0);
+        ohl->weightBalancing(0.8);
+        SL.setLayout(ohl);
+
+        SL.call(GA);
+        //GraphIO::write(GA, "test.gml", GraphIO::writeGML);
+        GraphIO::write(GA, "test.svg", GraphIO::drawSVG);
+
         theGraph.internalFlags |= FLAGS_DFSNUMBERED;
         return OK;
+    }
+
+    edge getTwinArc(edge & e) {
+        adjEntry a = e->adjSource();
+        return a->theEdge();
     }
 
     void BoyerMyrvoldEdgeAddition::_CreateSortedSeparatedDFSChildLists() {

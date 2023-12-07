@@ -20,12 +20,15 @@ int main()
                            GraphAttributes::edgeStyle |
                            GraphAttributes::nodeStyle |
                            GraphAttributes::nodeTemplate);
-        GraphIO::read(GA,G, "graph_generation/K_15.gml", GraphIO::readGML);
-        NodeArray<int> n(G, 1);
+        GraphIO::read(GA,G, "graph_generation/K_4.gml", GraphIO::readGML);
+        //NodeArray<int> n(G, 1);
         //Array<node> a(G.numberOfNodes());
         //printf("Index: %d\n", a[2]->degree());
-        for(int i = 0; i < G.numberOfNodes(); ++i) {
-            printf("TEST: %d\n", n[i]);
+        for(node n:G.nodes) {
+            printf("Node %d\n", n->index());
+            for(adjEntry a : n->adjEntries) {
+                printf("Test: %d\n", a->twinNode()->index());
+            }
         }
 
         BoyerMyrvold b;

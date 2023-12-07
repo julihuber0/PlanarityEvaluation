@@ -9,17 +9,17 @@ namespace ogdf {
 BMGraphAttributes::BMGraphAttributes(ogdf::Graph &g):
         vertexData(g),
         rootVertexData(g),
-        edgeData(g),
-        buckets(g),
+        edgeData(g)
+        /*buckets(g),
         N(g.numberOfNodes()),
         M(g.numberOfEdges()),
         embedFlags(-1),
         internalFlags(-1),
-        IC(initIC)
+        IC(initIC)*/
         {
-            LCInit(DFSChildLists, g);
-            LCInit(BicompLists, g);
-            LCInit(bin, g);
+            //LCInit(DFSChildLists, g);
+            //LCInit(BicompLists, g);
+            //LCInit(bin, g);
         }
 
     void BMGraphAttributes::LCInit(listCollection& l, Graph& g) {
@@ -60,10 +60,10 @@ BMGraphAttributes::BMGraphAttributes(ogdf::Graph &g):
         return newList;
     }
 
-    void BMGraphAttributes::LCCopy(listCollection & dst, listCollection & src) {
+    /*void BMGraphAttributes::LCCopy(listCollection & dst, listCollection & src) {
         for(node n: src.nodeList.graphOf()->nodes) {
             dst.nodeList[n] = src.nodeList[n];
         }
-    }
+    }*/
 
 }
