@@ -91,6 +91,8 @@ namespace ogdf {
         int N, M, internalFlags, embedFlags;
         listCollection BicompLists, DFSChildLists, bin;
 
+        vector<node> dfi_sorted;
+
         static void LCInit(listCollection&, Graph&);
 
         node LCAppend(listCollection&, node, node);

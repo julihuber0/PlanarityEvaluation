@@ -5,6 +5,7 @@
 #include <iostream>
 #include <bits/stdc++.h>
 #include "BoyerMyrvoldEdgeAddition.h"
+#include <ogdf/planarity/BoothLueker.h>
 
 #define NIL		(-1)
 #define TYPE_UNKNOWN 8
@@ -22,12 +23,38 @@ int main(int argc, char* argv[])
                        GraphAttributes::edgeStyle |
                        GraphAttributes::nodeStyle |
                        GraphAttributes::nodeTemplate);
+    GA.directed() = false;
     if(!GraphIO::read(GA, G, "graph_generation/K_4.gml", GraphIO::readGML)) {
         printf("Read failed");
     };
-    cout << G.numberOfEdges();
+    for(node n : G.nodes) {
+        for(adjEntry a : n->adjEntries) {
+            cout << a << endl;
+        }
+    }
     BoyerMyrvoldEdgeAddition b(G);
     b.gp_CreateDFSTree();
+
+    /*Graph gd;
+    randomPlanarConnectedGraph(gd, 100, 200);
+    node v = gd.chooseNode([&](node x) {
+        return x->degree() < gd.numberOfNodes() -1;
+    });
+
+    node u = gd.chooseNode([&](node x) {
+        if (x == v) return false;
+        for (adjEntry adj : v->adjEntries) {
+            if (adj->twinNode() == x) return false;
+        }
+        return true;
+    });
+
+    BoothLueker BL;
+    cout << BL.isPlanar(gd) << endl;
+    gd.newEdge(v, u);
+    cout << BL.isPlanar(gd) << endl;*/
+
+
     return 0;
 }
 

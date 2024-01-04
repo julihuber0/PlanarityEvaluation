@@ -16,10 +16,9 @@
 #define TYPE_UNKNOWN 8
 #define OK 0
 
-#define EDGE_DFSCHILD           1
+#define EDGE_DFS           1
 #define EDGE_FORWARD            2
 #define EDGE_BACK               3
-#define EDGE_DFSPARENT          4
 
 #define VERTEX_HIGH_RXW         6
 #define VERTEX_LOW_RXW          7
@@ -40,6 +39,10 @@ namespace ogdf {
         edge getTwinArc(edge&);
 
         int gp_CreateDFSTree();
+
+        void gp_SortVertices();
+
+        void gp_LowpointAndLeastAncestor();
 
         void _CreateSortedSeparatedDFSChildLists();
 

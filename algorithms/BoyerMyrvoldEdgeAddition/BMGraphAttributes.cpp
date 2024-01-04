@@ -20,6 +20,7 @@ BMGraphAttributes::BMGraphAttributes(ogdf::Graph &g):
             //LCInit(DFSChildLists, g);
             //LCInit(BicompLists, g);
             //LCInit(bin, g);
+            dfi_sorted.reserve(g.numberOfEdges());
         }
 
     void BMGraphAttributes::LCInit(listCollection& l, Graph& g) {
