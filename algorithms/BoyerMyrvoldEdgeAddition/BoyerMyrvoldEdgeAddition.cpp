@@ -31,7 +31,7 @@ namespace ogdf {
         for (node n: sourceGraph.nodes) {
             if (DFI >= sourceGraph.numberOfEdges()) break;
             if (theGraph.vertexData[n].DFSParent != nullptr) continue;
-            theGraph.vertexData[n].v = DFI++;
+            theGraph.vertexData[n].dfi = DFI++;
             theGraph.vertexData[n].visited = 1;
             theGraph.vertexData[n].DFSParent = nullptr;
             for (adjEntry a: n->adjEntries) {
@@ -46,7 +46,7 @@ namespace ogdf {
 
                 if (!theGraph.vertexData[u].visited) {
                     theGraph.vertexData[u].visited = 1;
-                    theGraph.vertexData[u].v = DFI++;
+                    theGraph.vertexData[u].dfi = DFI++;
                     theGraph.vertexData[u].DFSParent = uparent;
 
                     theGraph.edgeData[e].type = EDGE_DFS;
@@ -55,7 +55,7 @@ namespace ogdf {
                         dfsStack.emplace(a->theEdge()->opposite(u), a->theEdge());
                     }
                 } else if (theGraph.edgeData[e].type != EDGE_DFS) {
-                    if (theGraph.vertexData[uparent].v < theGraph.vertexData[u].v) {
+                    if (theGraph.vertexData[uparent].dfi < theGraph.vertexData[u].dfi) {
                         theGraph.edgeData[e].type = EDGE_FORWARD;
                     } else {
                         theGraph.edgeData[e].type = EDGE_BACK;
@@ -103,7 +103,7 @@ namespace ogdf {
 
     void BoyerMyrvoldEdgeAddition::gp_SortVertices() {
         for (node n: sourceGraph.nodes) {
-            theGraph.dfi_sorted[theGraph.vertexData[n].v] = n;
+            theGraph.dfi_sorted[theGraph.vertexData[n].dfi] = n;
         }
     }
 
@@ -115,7 +115,7 @@ namespace ogdf {
         stack<node> stack;
         node u, L, leastAncestor, uneighbour;
 
-        for (node n: sourceGraph.nodes) {
+        for (node n: theGraph.dfi_sorted) {
             if (theGraph.vertexData[n].visited) continue;
             stack.push(n);
             while (!stack.empty()) {
@@ -126,7 +126,7 @@ namespace ogdf {
                     stack.push(u);
 
                     for (adjEntry a: u->adjEntries) {
-                        if (theGraph.vertexData[u].v - theGraph.vertexData[a->twinNode()].v == -1) {
+                        if (theGraph.vertexData[u].dfi - theGraph.vertexData[a->twinNode()].dfi == -1) {
                             stack.push(a->twinNode());
                         }
                     }
@@ -134,20 +134,20 @@ namespace ogdf {
                     L = leastAncestor = u;
                     for (adjEntry a: u->adjEntries) {
                         uneighbour = a->twinNode();
-                        if (theGraph.vertexData[u].v - theGraph.vertexData[a->twinNode()].v == -1) {
+                        if (theGraph.vertexData[u].dfi - theGraph.vertexData[a->twinNode()].dfi == -1) {
                             if (L > theGraph.vertexData[uneighbour].Lowpoint) {
                                 L = theGraph.vertexData[uneighbour].Lowpoint;
                             }
-                        } else if (theGraph.vertexData[u].v > theGraph.vertexData[a->twinNode()].v) {
-                            if (theGraph.vertexData[leastAncestor].v > theGraph.vertexData[uneighbour].v) {
+                        } else if (theGraph.vertexData[u].dfi > theGraph.vertexData[a->twinNode()].dfi) {
+                            if (theGraph.vertexData[leastAncestor].dfi > theGraph.vertexData[uneighbour].dfi) {
                                 leastAncestor = uneighbour;
                             }
-                        } else if (theGraph.vertexData[u].v < theGraph.vertexData[a->twinNode()].v) {
+                        } else if (theGraph.vertexData[u].dfi < theGraph.vertexData[a->twinNode()].dfi) {
                             break;
                         }
                     }
                     theGraph.vertexData[u].leastAncestor = leastAncestor;
-                    theGraph.vertexData[u].Lowpoint = theGraph.vertexData[leastAncestor].v < theGraph.vertexData[L].v ? leastAncestor : L;
+                    theGraph.vertexData[u].Lowpoint = theGraph.vertexData[leastAncestor].dfi < theGraph.vertexData[L].dfi ? leastAncestor : L;
                 }
             }
         }

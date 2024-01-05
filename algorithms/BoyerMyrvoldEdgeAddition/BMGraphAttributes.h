@@ -24,7 +24,7 @@ namespace ogdf {
         BMGraphAttributes();
 
         typedef struct {
-            int v;
+            int dfi;
             int visited;
             node link[2];
             int type;
@@ -77,7 +77,7 @@ namespace ogdf {
 
         typedef struct {
             NodeArray<lcnode> nodeList;
-            node head;
+            int N;
         } listCollection;
 
         public:
@@ -85,7 +85,7 @@ namespace ogdf {
         NodeArray<graphVertex> rootVertexData;
         EdgeArray<graphEdge> edgeData;
         isolatorContext IC;
-        NodeArray<int> buckets;
+        vector<node> buckets;
         NodeArray<extFaceLinkRec> extFace;
         stack<node> theStack;
         int N, M, internalFlags, embedFlags;
@@ -95,15 +95,17 @@ namespace ogdf {
 
         static void LCInit(listCollection&, Graph&);
 
-        node LCAppend(listCollection&, node, node);
+        static node LCAppend(listCollection&, node, node);
 
-        node LCPrepend(listCollection&, node, node);
+        static node LCPrepend(listCollection&, node, node);
 
-        node LCGetNext(listCollection&, node, node);
+        static node LCGetNext(listCollection&, node, node);
 
-        node LCGetPrev(listCollection&, node, node);
+        static node LCGetPrev(listCollection&, node, node);
 
         void LCCopy(listCollection&, listCollection&);
+
+        static void LCReset(listCollection&);
 
         node gp_GetTwinArc(node);
 
