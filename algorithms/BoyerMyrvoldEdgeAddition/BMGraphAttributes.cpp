@@ -10,16 +10,16 @@ namespace ogdf {
             vertexData(g),
             rootVertexData(g),
             edgeData(g),
-            buckets(g.numberOfEdges(), nullptr),
+            buckets(g.numberOfEdges(), nullptr)
     /*N(g.numberOfNodes()),
     M(g.numberOfEdges()),
     embedFlags(-1),
     internalFlags(-1),
     IC(initIC)*/
     {
-        //LCInit(DFSChildLists, g);
-        //LCInit(BicompLists, g);
-        //LCInit(bin, g);
+        LCInit(DFSChildLists, g);
+        LCInit(BicompLists, g);
+        LCInit(bin, g);
         dfi_sorted.reserve(g.numberOfEdges());
     }
 

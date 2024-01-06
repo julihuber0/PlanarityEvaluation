@@ -154,7 +154,23 @@ namespace ogdf {
     }
 
     void BoyerMyrvoldEdgeAddition::_CreateSortedSeparatedDFSChildLists() {
+        for (node n: sourceGraph.nodes) {
+            node lp = theGraph.vertexData[n].Lowpoint;
+            BMGraphAttributes::LCAppend(theGraph.bin, theGraph.buckets[theGraph.vertexData[lp].dfi], n);
+        }
 
+        for (int i = 0; i < sourceGraph.numberOfNodes(); ++i) {
+            node J;
+            if ((J = theGraph.buckets[i]) != nullptr) {
+                while (J != nullptr) {
+                    if (theGraph.vertexData[J].DFSParent != nullptr && theGraph.vertexData[J].DFSParent != J) {
+                        node& theList = theGraph.vertexData[theGraph.vertexData[J].DFSParent].separatedDFSChildList;
+                        theList = BMGraphAttributes::LCAppend(theGraph.DFSChildLists, theList, J);
+                    }
+                    J = BMGraphAttributes::LCGetNext(theGraph.bin, theGraph.buckets[i], J);
+                }
+            }
+        }
 
     }
 
