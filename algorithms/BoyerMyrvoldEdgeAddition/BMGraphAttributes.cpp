@@ -74,4 +74,10 @@ namespace ogdf {
         }
     }*/
 
+    void BMGraphAttributes::initFwArcList(ogdf::Graph & g) {
+        for (node n: g.nodes) {
+            vertexData[n].fwdArcList.reserve(n->degree());
+        }
+    }
+
 }

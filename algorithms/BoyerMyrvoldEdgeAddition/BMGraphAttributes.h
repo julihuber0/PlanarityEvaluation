@@ -29,7 +29,8 @@ namespace ogdf {
             node link[2];
             int type;
             node DFSParent, leastAncestor, Lowpoint, adjacentTo;
-            node pertinentBicompList, separatedDFSChildList, fwdArcList;
+            node pertinentBicompList, separatedDFSChildList;
+            vector<adjEntry> fwdArcList;
         } graphVertex;
 
         typedef struct {
@@ -83,7 +84,7 @@ namespace ogdf {
         public:
         NodeArray<graphVertex> vertexData;
         NodeArray<graphVertex> rootVertexData;
-        EdgeArray<graphEdge> edgeData;
+        AdjEntryArray<graphEdge> edgeData;
         isolatorContext IC;
         vector<node> buckets;
         NodeArray<extFaceLinkRec> extFace;
@@ -108,6 +109,8 @@ namespace ogdf {
         static void LCReset(listCollection&);
 
         node gp_GetTwinArc(node);
+
+        void initFwArcList(Graph&);
 
     };
 }

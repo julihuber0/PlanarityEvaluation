@@ -26,16 +26,9 @@ int main(int argc, char* argv[])
     GA.directed() = false;
     if(!GraphIO::read(GA, G, "graph_generation/K_4.gml", GraphIO::readGML)) {
         printf("Read failed");
-    };
-    for(node n : G.nodes) {
-        for(adjEntry a : n->adjEntries) {
-            cout << a << endl;
-        }
     }
-    BoyerMyrvoldEdgeAddition b(G);
-    b.gp_CreateDFSTree();
 
-    /*Graph gd;
+    Graph gd;
     randomPlanarConnectedGraph(gd, 100, 200);
     node v = gd.chooseNode([&](node x) {
         return x->degree() < gd.numberOfNodes() -1;
@@ -52,7 +45,10 @@ int main(int argc, char* argv[])
     BoothLueker BL;
     cout << BL.isPlanar(gd) << endl;
     gd.newEdge(v, u);
-    cout << BL.isPlanar(gd) << endl;*/
+    cout << BL.isPlanar(gd) << endl;
+
+    BoyerMyrvoldEdgeAddition b(gd);
+    b.gp_CreateDFSTree();
 
 
     return 0;

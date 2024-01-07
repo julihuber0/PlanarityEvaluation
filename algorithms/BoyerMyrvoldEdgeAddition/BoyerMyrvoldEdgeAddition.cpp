@@ -16,13 +16,13 @@ namespace ogdf {
     int BoyerMyrvoldEdgeAddition::gp_CreateDFSTree() {
         int DFI = 0;
         node uparent, u;
-        edge e;
+        adjEntry e;
 
         //if (theGraph==nullptr) return NOTOK;
         //if(theGraph.internalFlags & FLAGS_DFSNUMBERED) return OK;
         stack<node> dfsNodes;
         stack<edge> dfsEdges;
-        stack<pair<node, edge>> dfsStack;
+        stack<pair<node, adjEntry>> dfsStack;
 
         for (node n: sourceGraph.nodes) {
             theGraph.vertexData[n].visited = 0;
@@ -35,28 +35,31 @@ namespace ogdf {
             theGraph.vertexData[n].visited = 1;
             theGraph.vertexData[n].DFSParent = nullptr;
             for (adjEntry a: n->adjEntries) {
-                dfsStack.emplace(a->theEdge()->opposite(n), a->theEdge());
+                dfsStack.emplace(a->twinNode(), a);
             }
 
             while (!dfsStack.empty()) {
                 u = dfsStack.top().first;
                 e = dfsStack.top().second;
                 dfsStack.pop();
-                uparent = e->opposite(u);
+                uparent = e->theNode();
 
                 if (!theGraph.vertexData[u].visited) {
                     theGraph.vertexData[u].visited = 1;
                     theGraph.vertexData[u].dfi = DFI++;
                     theGraph.vertexData[u].DFSParent = uparent;
 
-                    theGraph.edgeData[e].type = EDGE_DFS;
+                    theGraph.edgeData[e].type = EDGE_DFSCHILD;
 
                     for (adjEntry a: u->adjEntries) {
-                        dfsStack.emplace(a->theEdge()->opposite(u), a->theEdge());
+                        dfsStack.emplace(a->twinNode(), a);
                     }
-                } else if (theGraph.edgeData[e].type != EDGE_DFS) {
+                } else {
                     if (theGraph.vertexData[uparent].dfi < theGraph.vertexData[u].dfi) {
                         theGraph.edgeData[e].type = EDGE_FORWARD;
+                        theGraph.vertexData[u].fwdArcList.push_back(e);
+                    } else if (theGraph.edgeData[e->twin()].type == EDGE_DFSCHILD) {
+                        theGraph.edgeData[e].type = EDGE_DFSPARENT;
                     } else {
                         theGraph.edgeData[e].type = EDGE_BACK;
                     }
@@ -70,7 +73,7 @@ namespace ogdf {
             edgesV.push_back(ed);
         }
         for (edge ed: edgesV) {
-            if (theGraph.edgeData[ed].type != EDGE_DFS) {
+            if (theGraph.edgeData[ed->adjSource()].type != EDGE_DFSCHILD && theGraph.edgeData[ed->adjSource()].type != EDGE_DFSPARENT) {
                 hiddenEdges.hide(ed);
             }
         }
