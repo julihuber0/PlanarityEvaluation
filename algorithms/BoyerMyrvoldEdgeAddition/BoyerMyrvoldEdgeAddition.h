@@ -51,7 +51,7 @@ namespace ogdf {
 
         void _CreateDFSTreeEmbedding();
 
-        void _EmbedBackEdgeToDescendant(int, int, int, int);
+        void _EmbedBackEdgeToDescendant(int, node, node, int);
 
         int _GetNextVertexOnExternalFace(int, int *);
 

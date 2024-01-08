@@ -177,17 +177,27 @@ namespace ogdf {
 
     }
 
-    void BoyerMyrvoldEdgeAddition::_CreateFwdArcLists() {
-
-    }
-
     void BoyerMyrvoldEdgeAddition::_CreateDFSTreeEmbedding() {
-
+        for (node n: sourceGraph.nodes) {
+            if (theGraph.vertexData[n].DFSParent != nullptr) {
+                for (adjEntry adj: n->adjEntries) {
+                    if (adj->twinNode() == theGraph.vertexData[n].DFSParent) {
+                        theGraph.vertexData[n].parentArc = adj;
+                        theGraph.vertexData[n].childArc = adj->twin();
+                        break;
+                    }
+                }
+            }
+            theGraph.extFace[n].link[0] = theGraph.vertexData[n].link[1] = n;
+        }
     }
 
-    void BoyerMyrvoldEdgeAddition::_EmbedBackEdgeToDescendant(int RootSide, int RootVertex, int W,
+    void BoyerMyrvoldEdgeAddition::_EmbedBackEdgeToDescendant(int RootSide, node RootVertex, node W,
                                                               int WPrevLink) {
+        adjEntry fwdArc = theGraph.vertexData[W].adjacentTo;
+        adjEntry backArc = fwdArc->twin();
 
+        node parentCopy = theGraph.vertexData[RootVertex].DFSParent;
     }
 
     int BoyerMyrvoldEdgeAddition::_GetNextVertexOnExternalFace(int curVertex, int *pPrevLink) {

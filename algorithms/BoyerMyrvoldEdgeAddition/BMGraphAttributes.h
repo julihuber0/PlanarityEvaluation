@@ -28,9 +28,10 @@ namespace ogdf {
             int visited;
             node link[2];
             int type;
-            node DFSParent, leastAncestor, Lowpoint, adjacentTo;
+            node DFSParent, leastAncestor, Lowpoint;
             node pertinentBicompList, separatedDFSChildList;
-            vector<adjEntry> fwdArcList;
+            deque<adjEntry> fwdArcList;
+            adjEntry parentArc, childArc, adjacentTo;
         } graphVertex;
 
         typedef struct {
