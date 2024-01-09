@@ -21,6 +21,10 @@
 #define EDGE_BACK               3
 #define EDGE_DFSPARENT          4
 
+#define VAS_INACTIVE    0
+#define VAS_INTERNAL    1
+#define VAS_EXTERNAL    2
+
 #define VERTEX_HIGH_RXW         6
 #define VERTEX_LOW_RXW          7
 #define VERTEX_HIGH_RYW         8
@@ -52,6 +56,8 @@ namespace ogdf {
         void _CreateDFSTreeEmbedding();
 
         void _EmbedBackEdgeToDescendant(int, node, node, int);
+
+        int _VertexActiveStatus(node, node);
 
         int _GetNextVertexOnExternalFace(int, int *);
 

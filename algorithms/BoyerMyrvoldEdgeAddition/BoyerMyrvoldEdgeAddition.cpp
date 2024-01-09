@@ -198,6 +198,33 @@ namespace ogdf {
         adjEntry backArc = fwdArc->twin();
 
         node parentCopy = theGraph.vertexData[RootVertex].DFSParent;
+
+        theGraph.extFace[RootVertex].link[RootSide] = W;
+        theGraph.extFace[W].link[WPrevLink] = RootVertex;
+    }
+
+    int BoyerMyrvoldEdgeAddition::_VertexActiveStatus(node theVertex, node I) {
+        node leastLowpoint, DFSCHILD;
+
+        if ((DFSCHILD = theGraph.vertexData[theVertex].separatedDFSChildList) == nullptr) {
+            leastLowpoint = theVertex;
+        } else {
+            leastLowpoint = theGraph.vertexData[DFSCHILD].Lowpoint;
+        }
+
+        if (theGraph.vertexData[leastLowpoint].dfi > theGraph.vertexData[theGraph.vertexData[theVertex].leastAncestor].dfi) {
+            leastLowpoint = theGraph.vertexData[theVertex].leastAncestor;
+        }
+
+        if (theGraph.vertexData[leastLowpoint].dfi < theGraph.vertexData[I].dfi) {
+            return VAS_EXTERNAL;
+        }
+
+        if (theGraph.vertexData[theVertex].adjacentTo != nullptr || theGraph.vertexData[theVertex].pertinentBicompList !=
+                                                                            nullptr) {
+            return VAS_INTERNAL;
+        }
+        return VAS_INACTIVE;
     }
 
     int BoyerMyrvoldEdgeAddition::_GetNextVertexOnExternalFace(int curVertex, int *pPrevLink) {
