@@ -20,8 +20,6 @@ namespace ogdf {
 
         //if (theGraph==nullptr) return NOTOK;
         //if(theGraph.internalFlags & FLAGS_DFSNUMBERED) return OK;
-        stack<node> dfsNodes;
-        stack<edge> dfsEdges;
         stack<pair<node, adjEntry>> dfsStack;
 
         for (node n: sourceGraph.nodes) {
@@ -31,11 +29,21 @@ namespace ogdf {
         for (node n: sourceGraph.nodes) {
             if (DFI >= sourceGraph.numberOfEdges()) break;
             if (theGraph.vertexData[n].DFSParent != nullptr) continue;
-            theGraph.vertexData[n].dfi = DFI++;
+            theGraph.vertexData[n].dfi = DFI;
+            theGraph.vertexData[n].leastAncestor = DFI;
+            theGraph.dfi_sorted[DFI] = n;
+            DFI++;
             theGraph.vertexData[n].visited = 1;
             theGraph.vertexData[n].DFSParent = nullptr;
-            for (adjEntry a: n->adjEntries) {
-                dfsStack.emplace(a->twinNode(), a);
+            for (adjEntry ad: n->adjEntries) {
+                if (theGraph.vertexData[ad->twinNode()].visited != 0) {
+                    if (theGraph.vertexData[n].dfi > theGraph.vertexData[ad->twinNode()].dfi && theGraph.edgeData[ad->twin()].type != EDGE_DFSCHILD) {
+                        if (theGraph.vertexData[n].leastAncestor > theGraph.vertexData[ad->twinNode()].dfi) {
+                            theGraph.vertexData[n].leastAncestor = theGraph.vertexData[ad->twinNode()].dfi;
+                        }
+                    }
+                }
+                dfsStack.emplace(ad->twinNode(), ad);
             }
 
             while (!dfsStack.empty()) {
@@ -57,7 +65,7 @@ namespace ogdf {
                 } else {
                     if (theGraph.vertexData[uparent].dfi < theGraph.vertexData[u].dfi) {
                         theGraph.edgeData[e].type = EDGE_FORWARD;
-                        theGraph.vertexData[u].fwdArcList.push_back(e);
+                        theGraph.vertexData[u].fwdArcList.pushBack(e);
                     } else if (theGraph.edgeData[e->twin()].type == EDGE_DFSCHILD) {
                         theGraph.edgeData[e].type = EDGE_DFSPARENT;
                     } else {
@@ -104,53 +112,27 @@ namespace ogdf {
         return OK;
     }
 
-    void BoyerMyrvoldEdgeAddition::gp_SortVertices() {
-        for (node n: sourceGraph.nodes) {
-            theGraph.dfi_sorted[theGraph.vertexData[n].dfi] = n;
-        }
-    }
-
     void BoyerMyrvoldEdgeAddition::gp_LowpointAndLeastAncestor() {
-        for (node n: sourceGraph.nodes) {
-            theGraph.vertexData[n].visited = 0;
-        }
+        adjEntry adj, lastAdj;
+        node w;
+        for (int i = sourceGraph.numberOfNodes() - 1; i>= 0; --i) {
+            node v = theGraph.dfi_sorted[i];
+            theGraph.vertexData[v].Lowpoint = theGraph.vertexData[v].leastAncestor;
 
-        stack<node> stack;
-        node u, L, leastAncestor, uneighbour;
+            adj = v->firstAdj();
+            while (adj) {
+                lastAdj = adj;
+                adj = adj->succ();
+                if (theGraph.edgeData[lastAdj].type != EDGE_DFSCHILD && theGraph.edgeData[lastAdj].type != EDGE_DFSPARENT) {
+                    continue;
+                }
+                w = lastAdj->twinNode();
 
-        for (node n: theGraph.dfi_sorted) {
-            if (theGraph.vertexData[n].visited) continue;
-            stack.push(n);
-            while (!stack.empty()) {
-                u = stack.top();
-                stack.pop();
-                if (!theGraph.vertexData[u].visited) {
-                    theGraph.vertexData[u].visited = 1;
-                    stack.push(u);
-
-                    for (adjEntry a: u->adjEntries) {
-                        if (theGraph.vertexData[u].dfi - theGraph.vertexData[a->twinNode()].dfi == -1) {
-                            stack.push(a->twinNode());
-                        }
-                    }
-                } else {
-                    L = leastAncestor = u;
-                    for (adjEntry a: u->adjEntries) {
-                        uneighbour = a->twinNode();
-                        if (theGraph.vertexData[u].dfi - theGraph.vertexData[a->twinNode()].dfi == -1) {
-                            if (L > theGraph.vertexData[uneighbour].Lowpoint) {
-                                L = theGraph.vertexData[uneighbour].Lowpoint;
-                            }
-                        } else if (theGraph.vertexData[u].dfi > theGraph.vertexData[a->twinNode()].dfi) {
-                            if (theGraph.vertexData[leastAncestor].dfi > theGraph.vertexData[uneighbour].dfi) {
-                                leastAncestor = uneighbour;
-                            }
-                        } else if (theGraph.vertexData[u].dfi < theGraph.vertexData[a->twinNode()].dfi) {
-                            break;
-                        }
-                    }
-                    theGraph.vertexData[u].leastAncestor = leastAncestor;
-                    theGraph.vertexData[u].Lowpoint = theGraph.vertexData[leastAncestor].dfi < theGraph.vertexData[L].dfi ? leastAncestor : L;
+                if (theGraph.vertexData[w].dfi <= i) {
+                    continue;
+                }
+                if (theGraph.vertexData[w].Lowpoint < theGraph.vertexData[v].Lowpoint) {
+                    theGraph.vertexData[v].Lowpoint = theGraph.vertexData[w].Lowpoint;
                 }
             }
         }
@@ -158,23 +140,22 @@ namespace ogdf {
 
     void BoyerMyrvoldEdgeAddition::_CreateSortedSeparatedDFSChildLists() {
         for (node n: sourceGraph.nodes) {
-            node lp = theGraph.vertexData[n].Lowpoint;
-            BMGraphAttributes::LCAppend(theGraph.bin, theGraph.buckets[theGraph.vertexData[lp].dfi], n);
+            theGraph.buckets[theGraph.vertexData[n].Lowpoint].pushBack(n);
         }
-
-        for (int i = 0; i < sourceGraph.numberOfNodes(); ++i) {
-            node J;
-            if ((J = theGraph.buckets[i]) != nullptr) {
-                while (J != nullptr) {
-                    if (theGraph.vertexData[J].DFSParent != nullptr && theGraph.vertexData[J].DFSParent != J) {
-                        node& theList = theGraph.vertexData[theGraph.vertexData[J].DFSParent].separatedDFSChildList;
-                        theList = BMGraphAttributes::LCAppend(theGraph.DFSChildLists, theList, J);
-                    }
-                    J = BMGraphAttributes::LCGetNext(theGraph.bin, theGraph.buckets[i], J);
-                }
+        SListPure<node> sortedNodes;
+        for (auto & bucket : theGraph.buckets) {
+            for (node n: bucket) {
+                sortedNodes.pushBack(n);
             }
         }
 
+        for (node n: sortedNodes) {
+            if (theGraph.vertexData[n].DFSParent != nullptr) {
+                theGraph.vertexData[n].nodeInParent = theGraph.vertexData[n].separatedDFSChildList.pushBack(n);
+            } else {
+                theGraph.vertexData[n].nodeInParent = nullptr;
+            }
+        }
     }
 
     void BoyerMyrvoldEdgeAddition::_CreateDFSTreeEmbedding() {
@@ -204,23 +185,24 @@ namespace ogdf {
     }
 
     int BoyerMyrvoldEdgeAddition::_VertexActiveStatus(node theVertex, node I) {
-        node leastLowpoint, DFSCHILD;
+        int leastLowpoint;
+        node DFSCHILD;
 
-        if ((DFSCHILD = theGraph.vertexData[theVertex].separatedDFSChildList) == nullptr) {
-            leastLowpoint = theVertex;
+        if ((DFSCHILD = theGraph.vertexData[theVertex].separatedDFSChildList.front()) == nullptr) {
+            leastLowpoint = theGraph.vertexData[theVertex].Lowpoint;
         } else {
             leastLowpoint = theGraph.vertexData[DFSCHILD].Lowpoint;
         }
 
-        if (theGraph.vertexData[leastLowpoint].dfi > theGraph.vertexData[theGraph.vertexData[theVertex].leastAncestor].dfi) {
+        if (theGraph.vertexData[theGraph.dfi_sorted[leastLowpoint]].dfi > theGraph.vertexData[theGraph.dfi_sorted[theGraph.vertexData[theVertex].leastAncestor]].dfi) {
             leastLowpoint = theGraph.vertexData[theVertex].leastAncestor;
         }
 
-        if (theGraph.vertexData[leastLowpoint].dfi < theGraph.vertexData[I].dfi) {
+        if (theGraph.vertexData[theGraph.dfi_sorted[leastLowpoint]].dfi < theGraph.vertexData[I].dfi) {
             return VAS_EXTERNAL;
         }
 
-        if (theGraph.vertexData[theVertex].adjacentTo != nullptr || theGraph.vertexData[theVertex].pertinentBicompList !=
+        if (theGraph.vertexData[theVertex].adjacentTo != nullptr || theGraph.vertexData[theVertex].pertinentBicompList.front() !=
                                                                             nullptr) {
             return VAS_INTERNAL;
         }
@@ -246,7 +228,7 @@ namespace ogdf {
 
         /* If the bicomp list is empty, then we just return NIL */
 
-        if ((RootId = theGraph.vertexData[W].pertinentBicompList) == nullptr)
+        if ((RootId = theGraph.vertexData[W].pertinentBicompList.front()) == nullptr)
             return nullptr;
 
         /* Return the RootVertex, which is computed by adding N because we

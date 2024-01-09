@@ -9,18 +9,15 @@ namespace ogdf {
     BMGraphAttributes::BMGraphAttributes(ogdf::Graph &g) :
             vertexData(g),
             rootVertexData(g),
-            edgeData(g),
-            buckets(g.numberOfEdges(), nullptr)
+            edgeData(g)
     /*N(g.numberOfNodes()),
     M(g.numberOfEdges()),
     embedFlags(-1),
     internalFlags(-1),
     IC(initIC)*/
     {
-        LCInit(DFSChildLists, g);
-        LCInit(BicompLists, g);
-        LCInit(bin, g);
         dfi_sorted.reserve(g.numberOfEdges());
+        buckets.reserve(g.numberOfNodes());
     }
 
     void BMGraphAttributes::LCInit(listCollection &l, Graph &g) {

@@ -28,9 +28,11 @@ namespace ogdf {
             int visited;
             node link[2];
             int type;
-            node DFSParent, leastAncestor, Lowpoint;
-            node pertinentBicompList, separatedDFSChildList;
-            deque<adjEntry> fwdArcList;
+            node DFSParent;
+            int leastAncestor, Lowpoint;
+            ListPure<node> pertinentBicompList, separatedDFSChildList;
+            ListIterator<node> nodeInParent;
+            ListPure<adjEntry> fwdArcList;
             adjEntry parentArc, childArc, adjacentTo;
         } graphVertex;
 
@@ -87,12 +89,10 @@ namespace ogdf {
         NodeArray<graphVertex> rootVertexData;
         AdjEntryArray<graphEdge> edgeData;
         isolatorContext IC;
-        vector<node> buckets;
         NodeArray<extFaceLinkRec> extFace;
+        vector<SListPure<node>> buckets;
         stack<node> theStack;
         int N, M, internalFlags, embedFlags;
-        listCollection BicompLists, DFSChildLists, bin;
-
         vector<node> dfi_sorted;
 
         static void LCInit(listCollection&, Graph&);
