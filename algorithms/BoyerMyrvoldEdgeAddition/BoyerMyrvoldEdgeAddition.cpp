@@ -56,6 +56,8 @@ namespace ogdf {
                     theGraph.vertexData[u].visited = 1;
                     theGraph.vertexData[u].dfi = DFI++;
                     theGraph.vertexData[u].DFSParent = uparent;
+                    theGraph.vertexData[u].link[0] = uparent;
+                    theGraph.vertexData[u].link[1] = uparent;
 
                     theGraph.edgeData[e].type = EDGE_DFSCHILD;
 
