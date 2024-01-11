@@ -29,8 +29,10 @@ namespace ogdf {
             node link[2];
             int type;
             node DFSParent;
+            bool isRoot;
             int leastAncestor, Lowpoint;
             ListPure<node> pertinentBicompList, separatedDFSChildList;
+            ListPure<adjEntry> adjList, rootAdjList;
             ListIterator<node> nodeInParent;
             ListPure<adjEntry> fwdArcList;
             adjEntry parentArc, childArc, adjacentTo;

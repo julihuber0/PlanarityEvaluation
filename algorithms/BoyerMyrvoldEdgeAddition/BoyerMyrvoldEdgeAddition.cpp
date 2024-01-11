@@ -165,8 +165,9 @@ namespace ogdf {
             if (theGraph.vertexData[n].DFSParent != nullptr) {
                 for (adjEntry adj: n->adjEntries) {
                     if (adj->twinNode() == theGraph.vertexData[n].DFSParent) {
-                        theGraph.vertexData[n].parentArc = adj;
-                        theGraph.vertexData[n].childArc = adj->twin();
+                        theGraph.vertexData[n].adjList.pushBack(adj);
+                        theGraph.vertexData[n].adjList
+                        theGraph.vertexData[theGraph.vertexData[n].DFSParent].rootAdjList.pushBack(adj->twin());
                         break;
                     }
                 }
@@ -211,19 +212,27 @@ namespace ogdf {
         return VAS_INACTIVE;
     }
 
-    int BoyerMyrvoldEdgeAddition::_GetNextVertexOnExternalFace(int curVertex, int *pPrevLink) {
+    int BoyerMyrvoldEdgeAddition::_GetNextVertexOnExternalFace(node curVertex, int *pPrevLink) {
+        node e = theGraph.vertexData[curVertex].link[*pPrevLink];
 
     }
 
     void BoyerMyrvoldEdgeAddition::_InvertVertex(int V) {}
 
-    void BoyerMyrvoldEdgeAddition::_SetSignOfChildEdge(int V, int sign) {}
+    void BoyerMyrvoldEdgeAddition::_SetSignOfChildEdge(node V, int sign) {
+        for (adjEntry a: V->adjEntries) {
+            if (theGraph.edgeData[a].type == EDGE_DFSCHILD) {
+                theGraph.edgeData[a].sign = sign;
+                break;
+            }
+        }
+    }
 
     void BoyerMyrvoldEdgeAddition::_MergeVertex(int W, int WPrevLink, int R) {}
 
     void BoyerMyrvoldEdgeAddition::_MergeBicomps() {}
 
-    void BoyerMyrvoldEdgeAddition::_RecordPertinentChildBicomp(int I, int RootVertex) {}
+    void BoyerMyrvoldEdgeAddition::_RecordPertinentChildBicomp(node I, node RootVertex) {}
 
     node BoyerMyrvoldEdgeAddition::_GetPertinentChildBicomp(node W) {
         node RootId;
@@ -239,9 +248,50 @@ namespace ogdf {
         return RootId + theGraph.N;
     }
 
-    void BoyerMyrvoldEdgeAddition::_WalkUp(int I, int W) {}
+    void BoyerMyrvoldEdgeAddition::_WalkUp(node I, node W) {
+        node Zig, Zag, R, nextVertex, ParentCopy;
+        int ZigPrevLink, ZagPrevLink;
 
-    void BoyerMyrvoldEdgeAddition::_WalkDown(int I, int RootVertex) {}
+        Zig = Zag = W;
+        ZigPrevLink = 1;
+        ZagPrevLink = 0;
+
+        while (Zig != I) {
+            if (theGraph.vertexData[Zig].visited == 1) break;
+            if (theGraph.vertexData[Zag].visited == 1) break;
+
+            theGraph.vertexData[Zig].visited = 1;
+            theGraph.vertexData[Zag].visited = 1;
+
+            if (theGraph.vertexData[Zig].isRoot) {
+                R = Zig;
+            } else if (theGraph.vertexData[Zag].isRoot) {
+                R = Zag;
+            } else {
+                R = nullptr;
+            }
+
+            if (R != nullptr) {
+                ParentCopy = theGraph.vertexData[R].DFSParent;
+                if (ParentCopy != I) {
+                    _RecordPertinentChildBicomp(I, R);
+                }
+                Zig = Zag = ParentCopy;
+                ZigPrevLink = 1;
+                ZagPrevLink = 0;
+            } else {
+                nextVertex = theGraph.extFace[Zig].link[1^ZigPrevLink];
+                ZigPrevLink = theGraph.extFace[nextVertex].link[0] == Zig ? 0 : 1;
+                Zig = nextVertex;
+
+                nextVertex = theGraph.extFace[Zag].link[1^ZagPrevLink];
+                ZagPrevLink = theGraph.extFace[nextVertex].link[0] == Zag ? 0 : 1;
+                Zag = nextVertex;
+            }
+        }
+    }
+
+    void BoyerMyrvoldEdgeAddition::_WalkDown(node I, node RootVertex) {}
 
     int BoyerMyrvoldEdgeAddition::gp_Embed(int embedFlags) {}
 

@@ -59,21 +59,21 @@ namespace ogdf {
 
         int _VertexActiveStatus(node, node);
 
-        int _GetNextVertexOnExternalFace(int, int *);
+        int _GetNextVertexOnExternalFace(node, int *);
 
         void _InvertVertex(int);
 
-        void _SetSignOfChildEdge(int, int);
+        void _SetSignOfChildEdge(node, int);
 
         void _MergeVertex(int, int, int);
 
         void _MergeBicomps();
 
-        void _RecordPertinentChildBicomp(int, int);
+        void _RecordPertinentChildBicomp(node, node);
 
-        void _WalkUp(int, int);
+        void _WalkUp(node, node);
 
-        void _WalkDown(int, int);
+        void _WalkDown(node, node);
 
         int gp_Embed(int);
 
