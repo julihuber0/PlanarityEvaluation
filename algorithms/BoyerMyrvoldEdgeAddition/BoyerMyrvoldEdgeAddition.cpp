@@ -166,7 +166,7 @@ namespace ogdf {
                 for (adjEntry adj: n->adjEntries) {
                     if (adj->twinNode() == theGraph.vertexData[n].DFSParent) {
                         theGraph.vertexData[n].adjList.pushBack(adj);
-                        theGraph.vertexData[n].adjList
+                        theGraph.vertexData[n].adjList;
                         theGraph.vertexData[theGraph.vertexData[n].DFSParent].rootAdjList.pushBack(adj->twin());
                         break;
                     }
@@ -212,8 +212,8 @@ namespace ogdf {
         return VAS_INACTIVE;
     }
 
-    int BoyerMyrvoldEdgeAddition::_GetNextVertexOnExternalFace(node curVertex, int *pPrevLink) {
-        node e = theGraph.vertexData[curVertex].link[*pPrevLink];
+    int BoyerMyrvoldEdgeAddition::_GetNextVertexOnExternalFace(node curVertex, int& pPrevLink) {
+        node e = theGraph.vertexData[curVertex].link[pPrevLink];
 
     }
 

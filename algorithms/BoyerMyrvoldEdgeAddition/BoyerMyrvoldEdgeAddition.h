@@ -59,7 +59,7 @@ namespace ogdf {
 
         int _VertexActiveStatus(node, node);
 
-        int _GetNextVertexOnExternalFace(node, int *);
+        int _GetNextVertexOnExternalFace(node, int &);
 
         void _InvertVertex(int);
 
