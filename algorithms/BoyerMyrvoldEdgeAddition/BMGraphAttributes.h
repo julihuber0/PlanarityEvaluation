@@ -31,9 +31,8 @@ namespace ogdf {
             node DFSParent;
             bool isRoot;
             int leastAncestor, Lowpoint;
-            ListPure<node> pertinentBicompList, separatedDFSChildList;
-            ListPure<adjEntry> adjList, rootAdjList;
-            ListIterator<node> nodeInParent;
+            deque<node> pertinentBicompList, separatedDFSChildList;
+            vector<int> nodeInParent;
             ListPure<adjEntry> fwdArcList;
             adjEntry parentArc, childArc, adjacentTo;
         } graphVertex;
@@ -92,7 +91,7 @@ namespace ogdf {
         AdjEntryArray<graphEdge> edgeData;
         isolatorContext IC;
         NodeArray<extFaceLinkRec> extFace;
-        vector<SListPure<node>> buckets;
+        vector<vector<node>> buckets;
         stack<node> theStack;
         int N, M, internalFlags, embedFlags;
         vector<node> dfi_sorted;

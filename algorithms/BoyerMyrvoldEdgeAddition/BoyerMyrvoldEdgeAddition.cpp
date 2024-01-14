@@ -142,20 +142,19 @@ namespace ogdf {
 
     void BoyerMyrvoldEdgeAddition::_CreateSortedSeparatedDFSChildLists() {
         for (node n: sourceGraph.nodes) {
-            theGraph.buckets[theGraph.vertexData[n].Lowpoint].pushBack(n);
+            theGraph.buckets[theGraph.vertexData[n].Lowpoint].push_back(n);
         }
-        SListPure<node> sortedNodes;
+        vector<node> sortedNodes;
         for (auto & bucket : theGraph.buckets) {
             for (node n: bucket) {
-                sortedNodes.pushBack(n);
+                sortedNodes.push_back(n);
             }
         }
 
         for (node n: sortedNodes) {
-            if (theGraph.vertexData[n].DFSParent != nullptr) {
-                theGraph.vertexData[n].nodeInParent = theGraph.vertexData[n].separatedDFSChildList.pushBack(n);
-            } else {
-                theGraph.vertexData[n].nodeInParent = nullptr;
+            node parent;
+            if ((parent = theGraph.vertexData[n].DFSParent) != nullptr) {
+                theGraph.vertexData[parent].separatedDFSChildList.push_back(n);
             }
         }
     }
@@ -232,7 +231,15 @@ namespace ogdf {
 
     void BoyerMyrvoldEdgeAddition::_MergeBicomps() {}
 
-    void BoyerMyrvoldEdgeAddition::_RecordPertinentChildBicomp(node I, node RootVertex) {}
+    void BoyerMyrvoldEdgeAddition::_RecordPertinentChildBicomp(node I, node RootVertex) {
+        node parent = theGraph.vertexData[RootVertex].DFSParent;
+
+        if(theGraph.vertexData[RootVertex].Lowpoint < theGraph.vertexData[I].dfi) {
+            theGraph.vertexData[parent].pertinentBicompList.push_back(RootVertex);
+        } else {
+            theGraph.vertexData[parent].pertinentBicompList.push_front(RootVertex);
+        }
+    }
 
     node BoyerMyrvoldEdgeAddition::_GetPertinentChildBicomp(node W) {
         node RootId;
