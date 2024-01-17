@@ -204,6 +204,12 @@ namespace ogdf {
                 theGraph.vertexData[parent].separatedDFSChildList.push_back(n);
             }
         }
+        /*for (node n: sourceGraph.nodes) {
+            for (node v: theGraph.vertexData[n].separatedDFSChildList) {
+                cout << theGraph.vertexData[v].Lowpoint << endl;
+            }
+            cout << "-----" << endl;
+        }*/
     }
 
     void BoyerMyrvoldEdgeAddition::_CreateDFSTreeEmbedding() {
@@ -229,7 +235,7 @@ namespace ogdf {
 
         node parentCopy = theGraph.vertexData[RootVertex].DFSParent;
 
-        theGraph.extFace[RootVertex].link[RootSide] = W;
+        theGraph.rootExtFace[RootVertex].link[RootSide] = W;
         theGraph.extFace[W].link[WPrevLink] = RootVertex;
 
         theGraph.vertexData[parentCopy].fwdArcList.erase(theGraph.fwdListIters[fwdArc]);
@@ -242,7 +248,7 @@ namespace ogdf {
             theGraph.vertexData[W].adjList.pushBack(backArc);
         }
 
-        theGraph.extFace[RootVertex].link[RootSide] = W;
+        theGraph.rootExtFace[RootVertex].link[RootSide] = W;
         theGraph.extFace[W].link[WPrevLink] = RootVertex;
     }
 
@@ -273,11 +279,18 @@ namespace ogdf {
         return VAS_INACTIVE;
     }
 
-    void BoyerMyrvoldEdgeAddition::_InvertVertex(node V) {
+    void BoyerMyrvoldEdgeAddition::_InvertVertex(node V, bool isRoot) {
         theGraph.vertexData[V].adjList.reverse();
-        node temp = theGraph.extFace[V].link[0];
-        theGraph.extFace[V].link[0] = theGraph.extFace[V].link[1];
-        theGraph.extFace[V].link[1] = temp;
+        node temp;
+        if (!isRoot) {
+            temp = theGraph.extFace[V].link[0];
+            theGraph.extFace[V].link[0] = theGraph.extFace[V].link[1];
+            theGraph.extFace[V].link[1] = temp;
+        } else {
+            temp = theGraph.rootExtFace[V].link[0];
+            theGraph.rootExtFace[V].link[0] = theGraph.rootExtFace[V].link[1];
+            theGraph.rootExtFace[V].link[1] = temp;
+        }
     }
 
     void BoyerMyrvoldEdgeAddition::_SetSignOfChildEdge(node V, int sign) {
@@ -309,7 +322,7 @@ namespace ogdf {
             ZPrevLink = theGraph.theStack.back().second;
             theGraph.theStack.pop_back();
 
-            extFaceVertex = theGraph.extFace[R].link[1 ^ Rout];
+            extFaceVertex = theGraph.rootExtFace[R].link[1 ^ Rout];
             theGraph.extFace[Z].link[ZPrevLink] = extFaceVertex;
 
             if (theGraph.extFace[extFaceVertex].link[0] == theGraph.extFace[extFaceVertex].link[1]) {
@@ -321,7 +334,7 @@ namespace ogdf {
             if (ZPrevLink == Rout) {
                 if (theGraph.vertexData[R].rootAdjList.cyclicSucc(theGraph.vertexData[R].rootAdjList.begin()) ==
                     theGraph.vertexData[R].rootAdjList.begin()) {
-                    _InvertVertex(R);
+                    _InvertVertex(R, true);
                 }
                 _SetSignOfChildEdge(R, -1);
             }

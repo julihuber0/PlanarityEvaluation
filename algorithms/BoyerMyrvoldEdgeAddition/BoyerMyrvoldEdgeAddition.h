@@ -17,6 +17,8 @@
 #define OK 0
 #define NONPLANAR -3
 
+#define TYPE_UNKNOWN            0
+
 #define EDGE_DFSCHILD           1
 #define EDGE_FORWARD            2
 #define EDGE_BACK               3
@@ -54,7 +56,7 @@ namespace ogdf {
 
         int _VertexActiveStatus(node, node);
 
-        void _InvertVertex(node);
+        void _InvertVertex(node, bool);
 
         void _SetSignOfChildEdge(node, int);
 

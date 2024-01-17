@@ -26,7 +26,6 @@ namespace ogdf {
         typedef struct {
             int dfi;
             int visited;
-            int type;
             node DFSParent;
             bool isRoot;
             int leastAncestor, Lowpoint;
@@ -39,7 +38,6 @@ namespace ogdf {
         } graphVertex;
 
         typedef struct {
-            int visited;
             int type;
             int sign;
         } graphEdge;
@@ -65,6 +63,8 @@ namespace ogdf {
         NodeArray<list<node>::iterator> bicompListIters, sepDfsChildIters;
 
         void _fillVisitedFlags(bool, Graph &);
+
+        void initGraph(Graph&);
     };
 }
 
