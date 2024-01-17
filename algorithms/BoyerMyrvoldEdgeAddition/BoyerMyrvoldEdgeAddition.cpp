@@ -54,10 +54,10 @@ namespace ogdf {
 
                 if (!theGraph.vertexData[u].visited) {
                     theGraph.vertexData[u].visited = 1;
-                    theGraph.vertexData[u].dfi = DFI++;
+                    theGraph.vertexData[u].dfi = DFI;
+                    theGraph.dfi_sorted[DFI] = u;
+                    ++DFI;
                     theGraph.vertexData[u].DFSParent = uparent;
-                    theGraph.vertexData[u].link[0] = uparent;
-                    theGraph.vertexData[u].link[1] = uparent;
 
                     theGraph.edgeData[e].type = EDGE_DFSCHILD;
 
@@ -173,7 +173,8 @@ namespace ogdf {
                     }
                 }
             }
-            theGraph.extFace[n].link[0] = theGraph.vertexData[n].link[1] = n;
+            theGraph.extFace[n].link[0] = theGraph.extFace[n].link[1] = n;
+            theGraph.rootExtFace[n].link[0] = theGraph.rootExtFace[n].link[1] = n;
         }
     }
 
@@ -226,11 +227,6 @@ namespace ogdf {
         return VAS_INACTIVE;
     }
 
-    int BoyerMyrvoldEdgeAddition::_GetNextVertexOnExternalFace(node curVertex, int& pPrevLink) {
-        return 1;
-
-    }
-
     void BoyerMyrvoldEdgeAddition::_InvertVertex(node V) {
         theGraph.vertexData[V].adjList.reverse();
         node temp = theGraph.extFace[V].link[0];
@@ -257,7 +253,7 @@ namespace ogdf {
 
     void BoyerMyrvoldEdgeAddition::_MergeBicomps() {
         int Rout, ZPrevLink;
-        node R, Z, DFSCHILD, extFaceVertex;
+        node R, Z, extFaceVertex;
 
         while (!theGraph.theStack.empty()) {
             R = theGraph.theStack.back().first;
@@ -281,7 +277,6 @@ namespace ogdf {
                     _InvertVertex(R);
                 }
                 _SetSignOfChildEdge(R, -1);
-                Rout = 1^ZPrevLink;
             }
             theGraph.vertexData[Z].pertinentBicompList.erase(theGraph.bicompListIters[R]);
             theGraph.vertexData[Z].separatedDFSChildList.erase(theGraph.sepDfsChildIters[R]);
@@ -427,15 +422,12 @@ namespace ogdf {
         }
     }
 
-    int BoyerMyrvoldEdgeAddition::gp_Embed(int embedFlags) {
-        adjEntry J;
+    int BoyerMyrvoldEdgeAddition::gp_Embed() {
         node W, cur;
 
-        _CreateDFSTreeEmbedding();
-        gp_SortVertices();
+        gp_CreateDFSTree();
         gp_LowpointAndLeastAncestor();
         _CreateSortedSeparatedDFSChildLists();
-        _CreateFwdArcLists();
         _CreateDFSTreeEmbedding();
         theGraph._fillVisitedFlags(true, sourceGraph);
 
@@ -459,12 +451,6 @@ namespace ogdf {
         }
         return OK;
     }
-
-    void BoyerMyrvoldEdgeAddition::_OrientVerticesInEmbedding() {}
-
-    void BoyerMyrvoldEdgeAddition::_OrientVerticesInBicomp(int BicompRoot, int PreserveSigns) {}
-
-    int BoyerMyrvoldEdgeAddition::_JoinBicomps() {}
 
     void _initGraphAttributes(Graph &G) {
     }

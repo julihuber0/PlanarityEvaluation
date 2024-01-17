@@ -42,25 +42,17 @@ namespace ogdf {
 
         BMGraphAttributes theGraph;
 
-        edge getTwinArc(edge&);
-
         int gp_CreateDFSTree();
-
-        void gp_SortVertices();
 
         void gp_LowpointAndLeastAncestor();
 
         void _CreateSortedSeparatedDFSChildLists();
-
-        void _CreateFwdArcLists();
 
         void _CreateDFSTreeEmbedding();
 
         void _EmbedBackEdgeToDescendant(int, node, node, int);
 
         int _VertexActiveStatus(node, node);
-
-        int _GetNextVertexOnExternalFace(node, int &);
 
         void _InvertVertex(node);
 
@@ -78,13 +70,7 @@ namespace ogdf {
 
         void _WalkDown(node, node);
 
-        int gp_Embed(int);
-
-        void _OrientVerticesInEmbedding();
-
-        void _OrientVerticesInBicomp(int, int);
-
-        int _JoinBicomps();
+        int gp_Embed();
 
         node _GetPertinentChildBicomp(node);
     };

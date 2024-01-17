@@ -26,7 +26,6 @@ namespace ogdf {
         typedef struct {
             int dfi;
             int visited;
-            node link[2];
             int type;
             node DFSParent;
             bool isRoot;
@@ -40,7 +39,6 @@ namespace ogdf {
 
         typedef struct {
             int visited;
-            edge link[2];
             int type;
             int sign;
         } graphEdge;
@@ -53,48 +51,14 @@ namespace ogdf {
 #define FLAGS_DFSNUMBERED       1
 #define FLAGS_SORTEDBYDFI       2
 
-        typedef struct {
-            int minorType;
-            node v, r, x, y, w, px, py, z;
-            node ux, dx, uy, dy, dw, uz, dz;
-        } isolatorContext;
-
-        isolatorContext initIC = {-1, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
-                                  nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
-
-#define FLAGS_MINOR_A         1
-#define FLAGS_MINOR_B         2
-#define FLAGS_MINOR_C         4
-#define FLAGS_MINOR_D         8
-#define FLAGS_MINOR_E         16
-#define FLAGS_MINOR_E1        32
-#define FLAGS_MINOR_E2        64
-#define FLAGS_MINOR_E3        128
-#define FLAGS_MINOR_E4        256
-
-#define FLAGS_MINOR_E5        512
-#define FLAGS_MINOR_E6        1024
-#define FLAGS_MINOR_E7        2048
-
-        typedef struct {
-            node next, prev;
-            int statusCode;
-        } lcnode;
-
-        typedef struct {
-            NodeArray<lcnode> nodeList;
-            int N;
-        } listCollection;
-
         public:
         NodeArray<graphVertex> vertexData;
         NodeArray<graphVertex> rootVertexData;
         AdjEntryArray<graphEdge> edgeData;
-        isolatorContext IC;
         NodeArray<extFaceLinkRec> extFace, rootExtFace;
         vector<vector<node>> buckets;
         vector<pair<node, int>> theStack;
-        int N, M, internalFlags, embedFlags;
+        int N, internalFlags;
         vector<node> dfi_sorted;
         AdjEntryArray<list<adjEntry>::iterator> fwdListIters;
         NodeArray<list<node>::iterator> bicompListIters, sepDfsChildIters;
