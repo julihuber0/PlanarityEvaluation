@@ -15,6 +15,7 @@
 #define NIL		(-1)
 #define TYPE_UNKNOWN 8
 #define OK 0
+#define NONPLANAR -3
 
 #define EDGE_DFSCHILD           1
 #define EDGE_FORWARD            2
@@ -61,15 +62,17 @@ namespace ogdf {
 
         int _GetNextVertexOnExternalFace(node, int &);
 
-        void _InvertVertex(int);
+        void _InvertVertex(node);
 
         void _SetSignOfChildEdge(node, int);
 
-        void _MergeVertex(int, int, int);
+        void _MergeVertex(node, int, node);
 
         void _MergeBicomps();
 
         void _RecordPertinentChildBicomp(node, node);
+
+        bool pertinent(node);
 
         void _WalkUp(node, node);
 

@@ -31,9 +31,10 @@ namespace ogdf {
             node DFSParent;
             bool isRoot;
             int leastAncestor, Lowpoint;
-            deque<node> pertinentBicompList, separatedDFSChildList;
+            list<node> pertinentBicompList, separatedDFSChildList;
             vector<int> nodeInParent;
-            ListPure<adjEntry> fwdArcList;
+            list<adjEntry> fwdArcList;
+            ListPure<adjEntry> adjList, rootAdjList;
             adjEntry parentArc, childArc, adjacentTo;
         } graphVertex;
 
@@ -90,30 +91,15 @@ namespace ogdf {
         NodeArray<graphVertex> rootVertexData;
         AdjEntryArray<graphEdge> edgeData;
         isolatorContext IC;
-        NodeArray<extFaceLinkRec> extFace;
+        NodeArray<extFaceLinkRec> extFace, rootExtFace;
         vector<vector<node>> buckets;
-        stack<node> theStack;
+        vector<pair<node, int>> theStack;
         int N, M, internalFlags, embedFlags;
         vector<node> dfi_sorted;
+        AdjEntryArray<list<adjEntry>::iterator> fwdListIters;
+        NodeArray<list<node>::iterator> bicompListIters, sepDfsChildIters;
 
-        static void LCInit(listCollection&, Graph&);
-
-        static node LCAppend(listCollection&, node, node);
-
-        static node LCPrepend(listCollection&, node, node);
-
-        static node LCGetNext(listCollection&, node, node);
-
-        static node LCGetPrev(listCollection&, node, node);
-
-        void LCCopy(listCollection&, listCollection&);
-
-        static void LCReset(listCollection&);
-
-        node gp_GetTwinArc(node);
-
-        void initFwArcList(Graph&);
-
+        void _fillVisitedFlags(bool, Graph &);
     };
 }
 
