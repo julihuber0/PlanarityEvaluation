@@ -30,6 +30,7 @@ namespace ogdf {
             node DFSParent;
             bool isRoot;
             int leastAncestor, Lowpoint;
+            vector<adjEntry> dfsChildArcs;
             list<node> pertinentBicompList, separatedDFSChildList;
             vector<int> nodeInParent;
             list<adjEntry> fwdArcList;

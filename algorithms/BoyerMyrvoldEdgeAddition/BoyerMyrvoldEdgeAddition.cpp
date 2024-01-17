@@ -37,7 +37,8 @@ namespace ogdf {
             theGraph.vertexData[n].DFSParent = nullptr;
             for (adjEntry ad: n->adjEntries) {
                 if (theGraph.vertexData[ad->twinNode()].visited != 0) {
-                    if (theGraph.vertexData[n].dfi > theGraph.vertexData[ad->twinNode()].dfi && theGraph.edgeData[ad->twin()].type != EDGE_DFSCHILD) {
+                    if (theGraph.vertexData[n].dfi > theGraph.vertexData[ad->twinNode()].dfi &&
+                        theGraph.edgeData[ad->twin()].type != EDGE_DFSCHILD) {
                         if (theGraph.vertexData[n].leastAncestor > theGraph.vertexData[ad->twinNode()].dfi) {
                             theGraph.vertexData[n].leastAncestor = theGraph.vertexData[ad->twinNode()].dfi;
                         }
@@ -60,6 +61,7 @@ namespace ogdf {
                     theGraph.vertexData[u].DFSParent = uparent;
 
                     theGraph.edgeData[e].type = EDGE_DFSCHILD;
+                    theGraph.vertexData[uparent].dfsChildArcs.push_back(e);
 
                     for (adjEntry a: u->adjEntries) {
                         dfsStack.emplace(a->twinNode(), a);
@@ -86,7 +88,8 @@ namespace ogdf {
             edgesV.push_back(ed);
         }
         for (edge ed: edgesV) {
-            if (theGraph.edgeData[ed->adjSource()].type != EDGE_DFSCHILD && theGraph.edgeData[ed->adjSource()].type != EDGE_DFSPARENT) {
+            if (theGraph.edgeData[ed->adjSource()].type != EDGE_DFSCHILD &&
+                theGraph.edgeData[ed->adjSource()].type != EDGE_DFSPARENT) {
                 hiddenEdges.hide(ed);
             }
         }
@@ -143,6 +146,7 @@ namespace ogdf {
         }*/
         vector<node> st;
         node u, uneighbor;
+        int L, leastAncestor;
         for (node n: sourceGraph.nodes) {
             theGraph.vertexData[n].visited = false;
         }
@@ -159,11 +163,25 @@ namespace ogdf {
                     theGraph.vertexData[u].visited = 1;
                     st.push_back(u);
 
+                    for (adjEntry a: theGraph.vertexData[u].dfsChildArcs) {
+                        st.push_back(a->twinNode());
+                    }
+                } else {
+                    L = leastAncestor = theGraph.vertexData[u].dfi;
                     for (adjEntry a: u->adjEntries) {
+                        uneighbor = a->twinNode();
                         if (theGraph.edgeData[a].type == EDGE_DFSCHILD) {
-                            st.push_back(a->twinNode());
+                            if (L > theGraph.vertexData[uneighbor].Lowpoint) {
+                                L = theGraph.vertexData[uneighbor].Lowpoint;
+                            }
+                        } else if (theGraph.edgeData[a].type == EDGE_BACK) {
+                            if (leastAncestor > theGraph.vertexData[uneighbor].dfi) {
+                                leastAncestor = theGraph.vertexData[uneighbor].dfi;
+                            }
                         }
                     }
+                    theGraph.vertexData[u].leastAncestor = leastAncestor;
+                    theGraph.vertexData[u].Lowpoint = min(leastAncestor, L);
                 }
             }
         }
@@ -174,7 +192,7 @@ namespace ogdf {
             theGraph.buckets[theGraph.vertexData[n].Lowpoint].push_back(n);
         }
         vector<node> sortedNodes;
-        for (auto & bucket : theGraph.buckets) {
+        for (auto &bucket: theGraph.buckets) {
             for (node n: bucket) {
                 sortedNodes.push_back(n);
             }
@@ -216,7 +234,7 @@ namespace ogdf {
 
         theGraph.vertexData[parentCopy].fwdArcList.erase(theGraph.fwdListIters[fwdArc]);
 
-        if(RootSide == 0) {
+        if (RootSide == 0) {
             theGraph.vertexData[RootVertex].adjList.pushFront(fwdArc);
             theGraph.vertexData[W].adjList.pushFront(backArc);
         } else {
@@ -238,7 +256,8 @@ namespace ogdf {
             leastLowpoint = theGraph.vertexData[DFSCHILD].Lowpoint;
         }
 
-        if (theGraph.vertexData[theGraph.dfi_sorted[leastLowpoint]].dfi > theGraph.vertexData[theGraph.dfi_sorted[theGraph.vertexData[theVertex].leastAncestor]].dfi) {
+        if (theGraph.vertexData[theGraph.dfi_sorted[leastLowpoint]].dfi >
+            theGraph.vertexData[theGraph.dfi_sorted[theGraph.vertexData[theVertex].leastAncestor]].dfi) {
             leastLowpoint = theGraph.vertexData[theVertex].leastAncestor;
         }
 
@@ -246,8 +265,9 @@ namespace ogdf {
             return VAS_EXTERNAL;
         }
 
-        if (theGraph.vertexData[theVertex].adjacentTo != nullptr || theGraph.vertexData[theVertex].pertinentBicompList.front() !=
-                                                                            nullptr) {
+        if (theGraph.vertexData[theVertex].adjacentTo != nullptr ||
+            theGraph.vertexData[theVertex].pertinentBicompList.front() !=
+            nullptr) {
             return VAS_INTERNAL;
         }
         return VAS_INACTIVE;
@@ -289,17 +309,18 @@ namespace ogdf {
             ZPrevLink = theGraph.theStack.back().second;
             theGraph.theStack.pop_back();
 
-            extFaceVertex = theGraph.extFace[R].link[1^Rout];
+            extFaceVertex = theGraph.extFace[R].link[1 ^ Rout];
             theGraph.extFace[Z].link[ZPrevLink] = extFaceVertex;
 
-            if(theGraph.extFace[extFaceVertex].link[0] == theGraph.extFace[extFaceVertex].link[1]) {
+            if (theGraph.extFace[extFaceVertex].link[0] == theGraph.extFace[extFaceVertex].link[1]) {
                 theGraph.extFace[extFaceVertex].link[Rout ^ theGraph.extFace[extFaceVertex].inversionFlag] = Z;
             } else {
                 theGraph.extFace[extFaceVertex].link[theGraph.extFace[extFaceVertex].link[0] == R ? 0 : 1] = Z;
             }
 
             if (ZPrevLink == Rout) {
-                if (theGraph.vertexData[R].rootAdjList.cyclicSucc(theGraph.vertexData[R].rootAdjList.begin()) == theGraph.vertexData[R].rootAdjList.begin()) {
+                if (theGraph.vertexData[R].rootAdjList.cyclicSucc(theGraph.vertexData[R].rootAdjList.begin()) ==
+                    theGraph.vertexData[R].rootAdjList.begin()) {
                     _InvertVertex(R);
                 }
                 _SetSignOfChildEdge(R, -1);
@@ -313,7 +334,7 @@ namespace ogdf {
     void BoyerMyrvoldEdgeAddition::_RecordPertinentChildBicomp(node I, node RootVertex) {
         node parent = theGraph.vertexData[RootVertex].DFSParent;
 
-        if(theGraph.vertexData[RootVertex].Lowpoint < theGraph.vertexData[I].dfi) {
+        if (theGraph.vertexData[RootVertex].Lowpoint < theGraph.vertexData[I].dfi) {
             theGraph.vertexData[parent].pertinentBicompList.push_back(RootVertex);
         } else {
             theGraph.vertexData[parent].pertinentBicompList.push_front(RootVertex);
@@ -370,11 +391,11 @@ namespace ogdf {
                 ZigPrevLink = 1;
                 ZagPrevLink = 0;
             } else {
-                nextVertex = theGraph.extFace[Zig].link[1^ZigPrevLink];
+                nextVertex = theGraph.extFace[Zig].link[1 ^ ZigPrevLink];
                 ZigPrevLink = theGraph.extFace[nextVertex].link[0] == Zig ? 0 : 1;
                 Zig = nextVertex;
 
-                nextVertex = theGraph.extFace[Zag].link[1^ZagPrevLink];
+                nextVertex = theGraph.extFace[Zag].link[1 ^ ZagPrevLink];
                 ZagPrevLink = theGraph.extFace[nextVertex].link[0] == Zag ? 0 : 1;
                 Zag = nextVertex;
             }
@@ -386,7 +407,7 @@ namespace ogdf {
         int WPrevLink, Rout, XPrevLink, YPrevLink, RootSide;
         theGraph.theStack.clear();
         for (RootSide = 0; RootSide < 2; ++RootSide) {
-            WPrevLink = 1^RootSide;
+            WPrevLink = 1 ^ RootSide;
             W = theGraph.rootExtFace[RootVertex].link[RootSide];
 
             while (W != RootVertex) {
@@ -401,9 +422,9 @@ namespace ogdf {
                     R = _GetPertinentChildBicomp(W);
 
                     X = theGraph.rootExtFace[R].link[0];
-                    XPrevLink = theGraph.extFace[X].link[1]==R ? 1 : 0;
+                    XPrevLink = theGraph.extFace[X].link[1] == R ? 1 : 0;
                     Y = theGraph.rootExtFace[R].link[1];
-                    YPrevLink = theGraph.extFace[Y].link[0]==R? 0 : 1;
+                    YPrevLink = theGraph.extFace[Y].link[0] == R ? 0 : 1;
 
                     if (X == Y && theGraph.extFace[X].inversionFlag) {
                         XPrevLink = 0;
@@ -424,7 +445,7 @@ namespace ogdf {
                     Rout = W == X ? 0 : 1;
                     theGraph.theStack.emplace_back(R, Rout);
                 } else if (_VertexActiveStatus(W, I) == VAS_INACTIVE) {
-                    X = theGraph.extFace[W].link[1^WPrevLink];
+                    X = theGraph.extFace[W].link[1 ^ WPrevLink];
                     WPrevLink = theGraph.rootExtFace[X].link[0] == W ? 0 : 1;
                     W = X;
                 } else {
