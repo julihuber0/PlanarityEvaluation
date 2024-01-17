@@ -118,7 +118,7 @@ namespace ogdf {
     }
 
     void BoyerMyrvoldEdgeAddition::gp_LowpointAndLeastAncestor() {
-        adjEntry adj, lastAdj;
+        /*adjEntry adj, lastAdj;
         node w;
         for (int i = sourceGraph.numberOfNodes() - 1; i>= 0; --i) {
             node v = theGraph.dfi_sorted[i];
@@ -138,6 +138,32 @@ namespace ogdf {
                 }
                 if (theGraph.vertexData[w].Lowpoint < theGraph.vertexData[v].Lowpoint) {
                     theGraph.vertexData[v].Lowpoint = theGraph.vertexData[w].Lowpoint;
+                }
+            }
+        }*/
+        vector<node> st;
+        node u, uneighbor;
+        for (node n: sourceGraph.nodes) {
+            theGraph.vertexData[n].visited = false;
+        }
+
+        for (node I: sourceGraph.nodes) {
+            if (theGraph.vertexData[I].visited) {
+                continue;
+            }
+            st.push_back(I);
+            while (!st.empty()) {
+                u = st.back();
+                st.pop_back();
+                if (!theGraph.vertexData[u].visited) {
+                    theGraph.vertexData[u].visited = 1;
+                    st.push_back(u);
+
+                    for (adjEntry a: u->adjEntries) {
+                        if (theGraph.edgeData[a].type == EDGE_DFSCHILD) {
+                            st.push_back(a->twinNode());
+                        }
+                    }
                 }
             }
         }
@@ -295,17 +321,17 @@ namespace ogdf {
     }
 
     node BoyerMyrvoldEdgeAddition::_GetPertinentChildBicomp(node W) {
-        node RootId;
+        node root;
 
         /* If the bicomp list is empty, then we just return NIL */
 
-        if ((RootId = theGraph.vertexData[W].pertinentBicompList.front()) == nullptr)
+        if ((root = theGraph.vertexData[W].pertinentBicompList.front()) == nullptr)
             return nullptr;
 
         /* Return the RootVertex, which is computed by adding N because we
             subtracted N before storing it in the bicomp list */
 
-        return RootId + theGraph.N;
+        return root;
     }
 
     bool BoyerMyrvoldEdgeAddition::pertinent(node V) {
