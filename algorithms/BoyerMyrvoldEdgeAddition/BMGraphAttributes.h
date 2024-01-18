@@ -43,7 +43,7 @@ namespace ogdf {
         } graphEdge;
 
         typedef struct {
-            node link[2];
+            pair<node, bool> link[2];
             int inversionFlag;
         } extFaceLinkRec;
 
