@@ -33,12 +33,13 @@ namespace ogdf {
             list<node> pertinentBicompList, separatedDFSChildList;
             vector<int> nodeInParent;
             list<adjEntry> fwdArcList;
-            ListPure<adjEntry> adjList, rootAdjList;
+            ListPure<adjEntry> adjList;
             adjEntry parentArc, childArc, adjacentTo;
         } graphVertex;
 
         typedef struct {
             int type;
+            bool isTargetRoot;
             int sign;
         } graphEdge;
 
@@ -51,6 +52,7 @@ namespace ogdf {
 #define FLAGS_SORTEDBYDFI       2
 
         public:
+        typedef pair<node, bool> bNode;
         NodeArray<graphVertex> vertexData;
         NodeArray<graphVertex> rootVertexData;
         AdjEntryArray<graphEdge> edgeData;
@@ -65,6 +67,12 @@ namespace ogdf {
         void _fillVisitedFlags(bool, Graph &);
 
         void initGraph(Graph&);
+
+        NodeArray<extFaceLinkRec>& getExtFace(bool);
+
+        NodeArray<graphVertex>& getVertexData(bool);
+
+        bNode getTarget(adjEntry);
     };
 }
 

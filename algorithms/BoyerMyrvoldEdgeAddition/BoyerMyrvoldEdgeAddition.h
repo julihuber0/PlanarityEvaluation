@@ -39,6 +39,7 @@ namespace ogdf {
     class BoyerMyrvoldEdgeAddition {
 
     public: explicit BoyerMyrvoldEdgeAddition(Graph &g);
+        typedef pair<node, bool> bNode;
 
         Graph& sourceGraph;
 
@@ -52,29 +53,29 @@ namespace ogdf {
 
         void _CreateDFSTreeEmbedding();
 
-        void _EmbedBackEdgeToDescendant(int, node, node, int);
+        void _EmbedBackEdgeToDescendant(int, bNode, bNode, int);
 
-        int _VertexActiveStatus(node, node);
+        int _VertexActiveStatus(bNode, bNode);
 
-        void _InvertVertex(node, bool);
+        void _InvertVertex(bNode, bool);
 
-        void _SetSignOfChildEdge(node, int);
+        void _SetSignOfChildEdge(bNode, int);
 
-        void _MergeVertex(node, int, node);
+        void _MergeVertex(bNode, int, bNode);
 
         void _MergeBicomps();
 
-        void _RecordPertinentChildBicomp(node, node);
+        void _RecordPertinentChildBicomp(bNode, bNode);
 
-        bool pertinent(node);
+        bool pertinent(bNode);
 
-        void _WalkUp(node, node);
+        void _WalkUp(bNode, bNode);
 
-        void _WalkDown(node, node);
+        void _WalkDown(bNode, bNode);
 
         int gp_Embed();
 
-        node _GetPertinentChildBicomp(node);
+        node _GetPertinentChildBicomp(bNode);
     };
 
 

@@ -218,7 +218,8 @@ namespace ogdf {
                 for (adjEntry adj: n->adjEntries) {
                     if (adj->twinNode() == theGraph.vertexData[n].DFSParent) {
                         theGraph.vertexData[n].adjList.pushBack(adj);
-                        theGraph.vertexData[theGraph.vertexData[n].DFSParent].rootAdjList.pushBack(adj->twin());
+                        theGraph.vertexData[theGraph.rootVertexData[n].DFSParent].adjList.pushBack(adj->twin());
+                        theGraph.edgeData[adj].isTargetRoot = true;
                         break;
                     }
                 }
@@ -228,28 +229,28 @@ namespace ogdf {
         }
     }
 
-    void BoyerMyrvoldEdgeAddition::_EmbedBackEdgeToDescendant(int RootSide, node RootVertex, node W,
+    void BoyerMyrvoldEdgeAddition::_EmbedBackEdgeToDescendant(int RootSide, bNode RootVertex, bNode W,
                                                               int WPrevLink) {
-        adjEntry fwdArc = theGraph.vertexData[W].adjacentTo;
+        adjEntry fwdArc = theGraph.getVertexData(W.second)[W.first].adjacentTo;
         adjEntry backArc = fwdArc->twin();
 
-        node parentCopy = theGraph.vertexData[RootVertex].DFSParent;
+        node parentCopy = theGraph.getVertexData(RootVertex.second)[RootVertex.first].DFSParent;
 
-        theGraph.rootExtFace[RootVertex].link[RootSide] = pair(W, false);
-        theGraph.extFace[W].link[WPrevLink] = pair(RootVertex, true);
+        theGraph.getExtFace(RootVertex.second)[RootVertex.first].link[RootSide] = W;
+        theGraph.getExtFace(W.second)[W.first].link[WPrevLink] = RootVertex;
 
         theGraph.vertexData[parentCopy].fwdArcList.erase(theGraph.fwdListIters[fwdArc]);
 
         if (RootSide == 0) {
-            theGraph.vertexData[RootVertex].adjList.pushFront(fwdArc);
-            theGraph.vertexData[W].adjList.pushFront(backArc);
+            theGraph.getVertexData(RootVertex.second)[RootVertex.first].adjList.pushFront(fwdArc);
+            theGraph.getVertexData(W.second)[W.first].adjList.pushFront(backArc);
         } else {
-            theGraph.vertexData[RootVertex].adjList.pushBack(fwdArc);
-            theGraph.vertexData[W].adjList.pushBack(backArc);
+            theGraph.getVertexData(RootVertex.second)[RootVertex.first].adjList.pushBack(fwdArc);
+            theGraph.getVertexData(W.second)[W.first].adjList.pushBack(backArc);
         }
 
-        theGraph.rootExtFace[RootVertex].link[RootSide] = pair(W, false);
-        theGraph.extFace[W].link[WPrevLink] = pair(RootVertex, true);
+        theGraph.getExtFace(RootVertex.second)[RootVertex.first].link[RootSide] = W;
+        theGraph.getExtFace(W.second)[W.first].link[WPrevLink] = RootVertex;
     }
 
     int BoyerMyrvoldEdgeAddition::_VertexActiveStatus(node theVertex, node I) {
@@ -409,7 +410,14 @@ namespace ogdf {
                 ZigPrevLink = 1;
                 ZagPrevLink = 0;
             } else {
-                if (!Zig.second) {
+                nextVertex = theGraph.getExtFace(Zig.second)[Zig.first].link[1 ^ ZigPrevLink];
+                ZigPrevLink = theGraph.getExtFace(Zig.second)[nextVertex.first].link[0] == Zig ? 0 : 1;
+                Zig = nextVertex;
+
+                nextVertex = theGraph.getExtFace(Zag.second)[Zag.first].link[1 ^ ZagPrevLink];
+                ZagPrevLink = theGraph.getExtFace(Zag.second)[nextVertex.first].link[0] == Zag ? 0 : 1;
+                Zag = nextVertex;
+                /*if (!Zig.second) {
                     nextVertex = theGraph.extFace[Zig.first].link[1 ^ ZigPrevLink];
                     ZigPrevLink = theGraph.extFace[nextVertex.first].link[0] == Zig ? 0 : 1;
                     Zig = nextVertex;
@@ -427,29 +435,29 @@ namespace ogdf {
                     nextVertex = theGraph.rootExtFace[Zag.first].link[1 ^ ZagPrevLink];
                     ZagPrevLink = theGraph.rootExtFace[nextVertex.first].link[0] == Zag ? 0 : 1;
                     Zag = nextVertex;
-                }
+                }*/
             }
         }
     }
 
     void BoyerMyrvoldEdgeAddition::_WalkDown(node I, node RootVertex) {
-        node W, R, X, Y;
+        bNode W, R, X, Y;
         int WPrevLink, Rout, XPrevLink, YPrevLink, RootSide;
         theGraph.theStack.clear();
         for (RootSide = 0; RootSide < 2; ++RootSide) {
             WPrevLink = 1 ^ RootSide;
             W = theGraph.rootExtFace[RootVertex].link[RootSide].first;
 
-            while (W != RootVertex) {
-                if (theGraph.vertexData[W].adjacentTo != nullptr) {
+            while (W.first != RootVertex) {
+                if (theGraph.vertexData[W.first].adjacentTo != nullptr) {
                     _MergeBicomps();
-                    _EmbedBackEdgeToDescendant(RootSide, RootVertex, W, WPrevLink);
+                    _EmbedBackEdgeToDescendant(RootSide, RootVertex, W.first, WPrevLink);
                     theGraph.vertexData[W].adjacentTo = nullptr;
                 }
 
-                if (!theGraph.vertexData[W].pertinentBicompList.empty()) {
-                    theGraph.theStack.emplace_back(W, WPrevLink);
-                    R = _GetPertinentChildBicomp(W);
+                if (!theGraph.vertexData[W.first].pertinentBicompList.empty()) {
+                    theGraph.theStack.emplace_back(W.first, WPrevLink);
+                    R = _GetPertinentChildBicomp(W.first);
 
                     X = theGraph.rootExtFace[R].link[0].first;
                     XPrevLink = theGraph.extFace[X].link[1].first == R ? 1 : 0;
@@ -476,7 +484,8 @@ namespace ogdf {
                     theGraph.theStack.emplace_back(R, Rout);
                 } else if (_VertexActiveStatus(W, I) == VAS_INACTIVE) {
                     X = theGraph.extFace[W].link[1 ^ WPrevLink].first;
-                    WPrevLink = theGraph.rootExtFace[X].link[0].first == W ? 0 : 1;
+                    bool isRoot = theGraph.extFace[W].link[1 ^ WPrevLink].second;
+                    WPrevLink = theGraph.getExtFace(isRoot)[X].link[0].first == W ? 0 : 1;
                     W = X;
                 } else {
                     break;

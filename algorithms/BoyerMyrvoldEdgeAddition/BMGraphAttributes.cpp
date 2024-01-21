@@ -42,4 +42,22 @@ namespace ogdf {
         }
     }
 
+    NodeArray<BMGraphAttributes::extFaceLinkRec>& BMGraphAttributes::getExtFace(bool b) {
+        if (b) {
+            return ref(rootExtFace);
+        }
+        return ref(extFace);
+    }
+
+    NodeArray<BMGraphAttributes::graphVertex>& BMGraphAttributes::getVertexData(bool b) {
+        if (b) {
+            return ref(rootVertexData);
+        }
+        return ref(vertexData);
+    }
+
+    pair<node, bool> BMGraphAttributes::getTarget(adjEntry a) {
+        return make_pair(a->twinNode(), edgeData[a].isTargetRoot);
+    }
+
 }
