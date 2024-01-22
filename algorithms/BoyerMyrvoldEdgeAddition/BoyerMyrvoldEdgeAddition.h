@@ -57,7 +57,7 @@ namespace ogdf {
 
         int _VertexActiveStatus(bNode, bNode);
 
-        void _InvertVertex(bNode, bool);
+        void _InvertVertex(bNode);
 
         void _SetSignOfChildEdge(bNode, int);
 
@@ -75,7 +75,7 @@ namespace ogdf {
 
         int gp_Embed();
 
-        node _GetPertinentChildBicomp(bNode);
+        bNode _GetPertinentChildBicomp(bNode);
     };
 
 

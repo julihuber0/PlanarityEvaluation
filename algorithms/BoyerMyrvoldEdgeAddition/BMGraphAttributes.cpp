@@ -42,18 +42,18 @@ namespace ogdf {
         }
     }
 
-    NodeArray<BMGraphAttributes::extFaceLinkRec>& BMGraphAttributes::getExtFace(bool b) {
-        if (b) {
-            return ref(rootExtFace);
+    BMGraphAttributes::extFaceLinkRec& BMGraphAttributes::getExtFace(bNode n) {
+        if (n.second) {
+            return ref(rootExtFace[n.first]);
         }
-        return ref(extFace);
+        return ref(extFace[n.first]);
     }
 
-    NodeArray<BMGraphAttributes::graphVertex>& BMGraphAttributes::getVertexData(bool b) {
-        if (b) {
-            return ref(rootVertexData);
+    BMGraphAttributes::graphVertex& BMGraphAttributes::getVertexData(bNode n) {
+        if (n.second) {
+            return ref(rootVertexData[n.first]);
         }
-        return ref(vertexData);
+        return ref(vertexData[n.first]);
     }
 
     pair<node, bool> BMGraphAttributes::getTarget(adjEntry a) {

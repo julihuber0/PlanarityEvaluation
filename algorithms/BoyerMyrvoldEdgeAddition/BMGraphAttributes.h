@@ -58,7 +58,7 @@ namespace ogdf {
         AdjEntryArray<graphEdge> edgeData;
         NodeArray<extFaceLinkRec> extFace, rootExtFace;
         vector<vector<node>> buckets;
-        vector<pair<node, int>> theStack;
+        vector<pair<bNode, int>> theStack;
         int N, internalFlags;
         vector<node> dfi_sorted;
         AdjEntryArray<list<adjEntry>::iterator> fwdListIters;
@@ -68,9 +68,9 @@ namespace ogdf {
 
         void initGraph(Graph&);
 
-        NodeArray<extFaceLinkRec>& getExtFace(bool);
+        extFaceLinkRec& getExtFace(bNode);
 
-        NodeArray<graphVertex>& getVertexData(bool);
+        graphVertex& getVertexData(bNode);
 
         bNode getTarget(adjEntry);
     };
