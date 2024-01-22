@@ -500,6 +500,11 @@ namespace ogdf {
         _CreateDFSTreeEmbedding();
         theGraph._fillVisitedFlags(false, sourceGraph);
 
+        for (node n: sourceGraph.nodes) {
+            cout << theGraph.extFace[n].link[0].first << " root?: " << theGraph.extFace[n].link[1].second << endl;
+            cout << theGraph.rootExtFace[n].link[0].first << " root?: " << theGraph.rootExtFace[n].link[1].second << endl;
+        }
+
         for (int i = sourceGraph.numberOfNodes() - 1; i >= 0; --i) {
             cur = make_pair(theGraph.dfi_sorted[i], false);
             for (adjEntry adj: theGraph.getVertexData(cur).fwdArcList) {
