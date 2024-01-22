@@ -63,7 +63,7 @@ namespace ogdf {
         AdjEntryArray<list<adjEntry>::iterator> fwdListIters;
         NodeArray<list<node>::iterator> bicompListIters, sepDfsChildIters;
 
-        void _fillVisitedFlags(bool, Graph &);
+        void _fillVisitedFlags(int, Graph &);
 
         void initGraph(Graph&);
 

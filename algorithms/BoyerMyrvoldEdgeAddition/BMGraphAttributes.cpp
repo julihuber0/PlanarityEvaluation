@@ -22,9 +22,9 @@ namespace ogdf {
         initGraph(g);
     }
 
-    void BMGraphAttributes::_fillVisitedFlags(bool b, Graph & g) {
+    void BMGraphAttributes::_fillVisitedFlags(int value, Graph & g) {
         for (node n: g.nodes) {
-            vertexData[n].visited = b;
+            vertexData[n].visited = value;
         }
     }
 
