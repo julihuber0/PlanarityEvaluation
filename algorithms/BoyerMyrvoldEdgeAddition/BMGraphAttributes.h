@@ -27,7 +27,6 @@ namespace ogdf {
             int dfi;
             int visited;
             node DFSParent;
-            bool isRoot;
             int leastAncestor, Lowpoint;
             vector<adjEntry> dfsChildArcs;
             list<node> pertinentBicompList, separatedDFSChildList;

@@ -35,7 +35,9 @@ namespace ogdf {
             DFI++;
             theGraph.vertexData[n].visited = 1;
             theGraph.vertexData[n].DFSParent = nullptr;
-            for (adjEntry ad: n->adjEntries) {
+            adjEntry ad;
+            for (auto i = n->adjEntries.rbegin(); i != n->adjEntries.rend(); ++i) {
+                ad = *i;
                 if (theGraph.vertexData[ad->twinNode()].visited != 0) {
                     if (theGraph.vertexData[n].dfi > theGraph.vertexData[ad->twinNode()].dfi &&
                         theGraph.edgeData[ad->twin()].type != EDGE_DFSCHILD) {
@@ -63,7 +65,9 @@ namespace ogdf {
                     theGraph.edgeData[e].type = EDGE_DFSCHILD;
                     theGraph.vertexData[uparent].dfsChildArcs.push_back(e);
 
-                    for (adjEntry a: u->adjEntries) {
+                    adjEntry a;
+                    for (auto i = u->adjEntries.rbegin(); i != u->adjEntries.rend(); ++i) {
+                        a = *i;
                         dfsStack.emplace(a->twinNode(), a);
                     }
                 } else {
@@ -80,6 +84,17 @@ namespace ogdf {
                     }
                 }
             }
+        }
+
+        for (node n: sourceGraph.nodes) {
+            if (theGraph.vertexData[n].DFSParent != nullptr) {
+                cout << "DFI vom DFSParent von " << n << ": "
+                     << theGraph.vertexData[theGraph.vertexData[n].DFSParent].dfi << endl;
+            }
+        }
+
+        for (node n: sourceGraph.nodes) {
+            cout << "DFSParent von " << n << ": " << theGraph.vertexData[n].DFSParent << endl;
         }
 
         Graph::HiddenEdgeSet hiddenEdges(sourceGraph);
@@ -202,6 +217,8 @@ namespace ogdf {
             node parent;
             if ((parent = theGraph.vertexData[n].DFSParent) != nullptr) {
                 theGraph.vertexData[parent].separatedDFSChildList.push_back(n);
+                theGraph.sepDfsChildIters[parent] = theGraph.vertexData[parent].separatedDFSChildList.end();
+                theGraph.sepDfsChildIters[parent]--;
             }
         }
         /*for (node n: sourceGraph.nodes) {
@@ -223,9 +240,9 @@ namespace ogdf {
                         break;
                     }
                 }
+                theGraph.extFace[n].link[0] = theGraph.extFace[n].link[1] = pair(n, true);
+                theGraph.rootExtFace[n].link[0] = theGraph.rootExtFace[n].link[1] = pair(n, false);
             }
-            theGraph.extFace[n].link[0] = theGraph.extFace[n].link[1] = pair(n, true);
-            theGraph.rootExtFace[n].link[0] = theGraph.rootExtFace[n].link[1] = pair(n, false);
         }
     }
 
@@ -239,7 +256,7 @@ namespace ogdf {
         theGraph.getExtFace(RootVertex).link[RootSide] = W;
         theGraph.getExtFace(W).link[WPrevLink] = RootVertex;
 
-        theGraph.getVertexData(parentCopy).fwdArcList.erase(theGraph.fwdListIters[fwdArc]);
+        //theGraph.getVertexData(parentCopy).fwdArcList.erase(theGraph.fwdListIters[fwdArc]);
 
         if (RootSide == 0) {
             theGraph.getVertexData(RootVertex).adjList.pushFront(fwdArc);
@@ -336,8 +353,9 @@ namespace ogdf {
                 _SetSignOfChildEdge(R, -1);
             }
             //OGDF_ASSERT(!Z.second);
-            theGraph.getVertexData(Z).pertinentBicompList.erase(theGraph.bicompListIters[R.first]);
-            theGraph.getVertexData(Z).separatedDFSChildList.erase(theGraph.sepDfsChildIters[R.first]);
+            cout << "Y: " << *theGraph.bicompListIters[R.first] << endl;
+            //theGraph.getVertexData(Z).pertinentBicompList.erase(theGraph.bicompListIters[R.first]);
+            //theGraph.getVertexData(Z).separatedDFSChildList.erase(theGraph.sepDfsChildIters[R.first]);
             _MergeVertex(Z, ZPrevLink, R);
         }
     }
@@ -349,8 +367,11 @@ namespace ogdf {
         //OGDF_ASSERT(!parent.second);
         if (theGraph.getVertexData(dfsChild).Lowpoint < theGraph.getVertexData(I).dfi) {
             theGraph.getVertexData(parent).pertinentBicompList.push_back(RootVertex.first);
+            theGraph.bicompListIters[parent.first] = (theGraph.getVertexData(parent).pertinentBicompList.end());
+            theGraph.bicompListIters[parent.first]--;
         } else {
             theGraph.getVertexData(parent).pertinentBicompList.push_front(RootVertex.first);
+            theGraph.bicompListIters[parent.first] = (theGraph.getVertexData(parent).pertinentBicompList.begin());
         }
     }
 
@@ -371,7 +392,8 @@ namespace ogdf {
 
     bool BoyerMyrvoldEdgeAddition::pertinent(bNode V) {
         //OGDF_ASSERT(!V.second);
-        return theGraph.vertexData[V.first].adjacentTo != nullptr || !theGraph.getVertexData(V).pertinentBicompList.empty();
+        return theGraph.vertexData[V.first].adjacentTo != nullptr ||
+               !theGraph.getVertexData(V).pertinentBicompList.empty();
     }
 
     void BoyerMyrvoldEdgeAddition::_WalkUp(bNode I, bNode W) {
@@ -403,7 +425,9 @@ namespace ogdf {
 
             if (R.first != nullptr) {
                 ParentCopy = make_pair(theGraph.vertexData[R.first].DFSParent, false);
+                cout << ParentCopy.first << endl;
                 if (ParentCopy != I) {
+                    cout << "Record" << endl;
                     _RecordPertinentChildBicomp(I, R);
                 }
                 Zig = Zag = ParentCopy;
@@ -413,11 +437,12 @@ namespace ogdf {
                 nextVertex = theGraph.getExtFace(Zig).link[1 ^ ZigPrevLink];
                 ZigPrevLink = theGraph.getExtFace(Zig).link[0] == Zig ? 0 : 1;
                 Zig = nextVertex;
-                cout << Zig.first << Zig.second << endl;
 
                 nextVertex = theGraph.getExtFace(Zag).link[1 ^ ZagPrevLink];
                 ZagPrevLink = theGraph.getExtFace(Zag).link[0] == Zag ? 0 : 1;
                 Zag = nextVertex;
+                cout << "ZigZagNext: " << Zig.first << ":" << Zig.second << "; " << Zag.first << ":" << Zag.second
+                     << endl;
             }
         }
         cout << "---" << endl;
@@ -430,8 +455,10 @@ namespace ogdf {
         for (RootSide = 0; RootSide < 2; ++RootSide) {
             WPrevLink = 1 ^ RootSide;
             W = theGraph.getExtFace(RootVertex).link[RootSide];
+            cout << "W: " << W.first << ":" << W.second << endl;
 
             while (W != RootVertex) {
+                cout << "Yeet" << endl;
                 if (theGraph.vertexData[W.first].adjacentTo != nullptr) {
                     _MergeBicomps();
                     _EmbedBackEdgeToDescendant(RootSide, RootVertex, W, WPrevLink);
@@ -473,20 +500,20 @@ namespace ogdf {
                 } else {
                     break;
                 }
+            }
 
-                if (theGraph.theStack.empty()) {
-                    theGraph.getExtFace(RootVertex).link[RootSide] = W;
-                    theGraph.getExtFace(W).link[WPrevLink] = RootVertex;
+            if (theGraph.theStack.empty()) {
+                theGraph.getExtFace(RootVertex).link[RootSide] = W;
+                theGraph.getExtFace(W).link[WPrevLink] = RootVertex;
 
-                    if (theGraph.getExtFace(W).link[0] == theGraph.getExtFace(W).link[1] && WPrevLink == RootSide) {
-                        theGraph.getExtFace(W).inversionFlag = 1;
-                    } else {
-                        theGraph.getExtFace(W).inversionFlag = 0;
-                    }
+                if (theGraph.getExtFace(W).link[0] == theGraph.getExtFace(W).link[1] && WPrevLink == RootSide) {
+                    theGraph.getExtFace(W).inversionFlag = 1;
+                } else {
+                    theGraph.getExtFace(W).inversionFlag = 0;
                 }
-                if (!theGraph.theStack.empty() || W == RootVertex) {
-                    break;
-                }
+            }
+            if (!theGraph.theStack.empty() || W == RootVertex) {
+                break;
             }
         }
     }
@@ -500,11 +527,6 @@ namespace ogdf {
         _CreateDFSTreeEmbedding();
         theGraph._fillVisitedFlags(false, sourceGraph);
 
-        for (node n: sourceGraph.nodes) {
-            cout << theGraph.extFace[n].link[0].first << " root?: " << theGraph.extFace[n].link[1].second << endl;
-            cout << theGraph.rootExtFace[n].link[0].first << " root?: " << theGraph.rootExtFace[n].link[1].second << endl;
-        }
-
         for (int i = sourceGraph.numberOfNodes() - 1; i >= 0; --i) {
             cur = make_pair(theGraph.dfi_sorted[i], false);
             for (adjEntry adj: theGraph.getVertexData(cur).fwdArcList) {
@@ -513,11 +535,13 @@ namespace ogdf {
                 _WalkUp(cur, W);
             }
 
+
             for (node n: theGraph.getVertexData(cur).separatedDFSChildList) {
                 if (!theGraph.vertexData[n].pertinentBicompList.empty()) {
                     _WalkDown(cur, make_pair(n, true));
                 }
             }
+            if (i == 1) break;
 
             if (!theGraph.getVertexData(cur).fwdArcList.empty()) {
                 return NONPLANAR;

@@ -35,9 +35,14 @@ namespace ogdf {
             vertexData[n].visited = false;
             vertexData[n].adjacentTo = nullptr;
             vertexData[n].DFSParent = nullptr;
+            extFace[n].inversionFlag = 0;
+            extFace[n].link[0] = extFace[n].link[1] = make_pair(nullptr, false);
+            rootExtFace[n].inversionFlag = 0;
+            rootExtFace[n].link[0] = rootExtFace[n].link[1] = make_pair(nullptr, false);
             for (adjEntry a: n->adjEntries) {
                 edgeData[a].type = 0;
                 edgeData[a].sign = 1;
+                edgeData[a].isTargetRoot = false;
             }
         }
     }
