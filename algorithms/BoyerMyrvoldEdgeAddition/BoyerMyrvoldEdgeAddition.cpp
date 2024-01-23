@@ -349,9 +349,7 @@ namespace ogdf {
                 }
                 _SetSignOfChildEdge(R, -1);
             }
-            node t = *theGraph.bicompListIters[R.first];
             theGraph.getVertexData(Z).pertinentBicompList.erase(theGraph.bicompListIters[R.first]);
-            list<node> lst = theGraph.getVertexData(Z).pertinentBicompList;
             theGraph.getVertexData(Z).separatedDFSChildList.erase(theGraph.sepDfsChildIters[R.first]);
             _MergeVertex(Z, ZPrevLink, R);
         }
@@ -534,7 +532,11 @@ namespace ogdf {
                     _WalkDown(cur, make_pair(n, true));
                 }
             }
-            //cout << "Yeet" << endl;
+            for (int j = 0; j < 5; ++j) {
+                cout << j << " Link 0: " << theGraph.rootExtFace[theGraph.dfi_sorted[j]].link[0].first << "|" << theGraph.rootExtFace[theGraph.dfi_sorted[j]].link[0].second << endl;
+                cout << j << " Link 1: " << theGraph.rootExtFace[theGraph.dfi_sorted[j]].link[1].first << "|" << theGraph.rootExtFace[theGraph.dfi_sorted[j]].link[1].second << endl;
+                cout << "---" << endl;
+            }
 
             if (!theGraph.getVertexData(cur).fwdArcList.empty()) {
                 return NONPLANAR;
