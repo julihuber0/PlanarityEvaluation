@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
         cout << "Read failed" << endl;
     }
 
-    /*Graph gd;
+    Graph gd;
     randomPlanarConnectedGraph(gd, 100, 200);
     node v = gd.chooseNode([&](node x) {
         return x->degree() < gd.numberOfNodes() -1;
@@ -42,12 +42,12 @@ int main(int argc, char* argv[])
         return true;
     });
 
-    BoothLueker BL;*/
+    BoothLueker BL;
     //cout << BL.isPlanar(gd) << endl;
     //gd.newEdge(v, u);
     //cout << BL.isPlanar(gd) << endl;
 
-    BoyerMyrvoldEdgeAddition b(G);
+    BoyerMyrvoldEdgeAddition b(gd);
     int r = b.gp_Embed();
     cout << r << endl;
 

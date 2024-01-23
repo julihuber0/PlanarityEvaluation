@@ -239,7 +239,6 @@ namespace ogdf {
 
     void BoyerMyrvoldEdgeAddition::_EmbedBackEdgeToDescendant(int RootSide, bNode RootVertex, bNode W,
                                                               int WPrevLink) {
-        cout << "Yeet" << endl;
         adjEntry fwdArc = theGraph.vertexData[W.first].adjacentTo;
         adjEntry backArc = fwdArc->twin();
 
@@ -361,11 +360,9 @@ namespace ogdf {
 
         //OGDF_ASSERT(!parent.second);
         if (theGraph.getVertexData(dfsChild).Lowpoint < theGraph.getVertexData(I).dfi) {
-            cout << "App" << endl;
             theGraph.getVertexData(parent).pertinentBicompList.push_back(RootVertex.first);
             theGraph.bicompListIters[RootVertex.first] = prev(theGraph.getVertexData(parent).pertinentBicompList.end());
         } else {
-            cout << "Prep" << endl;
             theGraph.getVertexData(parent).pertinentBicompList.push_front(RootVertex.first);
             theGraph.bicompListIters[RootVertex.first] = (theGraph.getVertexData(parent).pertinentBicompList.begin());
         }
@@ -418,7 +415,6 @@ namespace ogdf {
 
             if (R.first != nullptr) {
                 ParentCopy = make_pair(theGraph.vertexData[R.first].DFSParent, false);
-                cout << ParentCopy.first << endl;
                 if (ParentCopy != I) {
                     _RecordPertinentChildBicomp(I, R);
                 }
@@ -427,15 +423,15 @@ namespace ogdf {
                 ZagPrevLink = 0;
             } else {
                 nextVertex = theGraph.getExtFace(Zig).link[1 ^ ZigPrevLink];
-                ZigPrevLink = theGraph.getExtFace(Zig).link[0] == Zig ? 0 : 1;
+                ZigPrevLink = theGraph.getExtFace(nextVertex).link[0] == Zig ? 0 : 1;
                 Zig = nextVertex;
 
                 nextVertex = theGraph.getExtFace(Zag).link[1 ^ ZagPrevLink];
-                ZagPrevLink = theGraph.getExtFace(Zag).link[0] == Zag ? 0 : 1;
+                bNode t2 = theGraph.getExtFace(nextVertex).link[0];
+                ZagPrevLink = theGraph.getExtFace(nextVertex).link[0] == Zag ? 0 : 1;
                 Zag = nextVertex;
             }
         }
-        cout << "---" << endl;
     }
 
     void BoyerMyrvoldEdgeAddition::_WalkDown(bNode I, bNode RootVertex) {
@@ -532,16 +528,21 @@ namespace ogdf {
                     _WalkDown(cur, make_pair(n, true));
                 }
             }
+            /*for (int j = 0; j < 5; ++j) {
+                cout << j << " Link 0: " << theGraph.extFace[theGraph.dfi_sorted[j]].link[0].first << "|" << theGraph.extFace[theGraph.dfi_sorted[j]].link[0].second << endl;
+                cout << j << " Link 1: " << theGraph.extFace[theGraph.dfi_sorted[j]].link[1].first << "|" << theGraph.extFace[theGraph.dfi_sorted[j]].link[1].second << endl;
+                cout << "---" << endl;
+            }
+            cout << "Root:" << endl;
             for (int j = 0; j < 5; ++j) {
                 cout << j << " Link 0: " << theGraph.rootExtFace[theGraph.dfi_sorted[j]].link[0].first << "|" << theGraph.rootExtFace[theGraph.dfi_sorted[j]].link[0].second << endl;
                 cout << j << " Link 1: " << theGraph.rootExtFace[theGraph.dfi_sorted[j]].link[1].first << "|" << theGraph.rootExtFace[theGraph.dfi_sorted[j]].link[1].second << endl;
                 cout << "---" << endl;
-            }
+            }*/
 
             if (!theGraph.getVertexData(cur).fwdArcList.empty()) {
                 return NONPLANAR;
             }
-            //if (i == 1) break;
         }
         return OK;
     }
