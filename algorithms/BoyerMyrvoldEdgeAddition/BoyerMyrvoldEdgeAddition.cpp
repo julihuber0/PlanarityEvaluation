@@ -2,9 +2,6 @@
 // Created by huber on 29.11.23.
 //
 
-#include <ogdf/layered/SugiyamaLayout.h>
-#include <ogdf/layered/OptimalRanking.h>
-#include <ogdf/layered/MedianHeuristic.h>
 #include <ogdf/basic/Graph_d.h>
 #include "BoyerMyrvoldEdgeAddition.h"
 
@@ -18,8 +15,6 @@ namespace ogdf {
         node uparent, u;
         adjEntry e;
 
-        //if (theGraph==nullptr) return NOTOK;
-        //if(theGraph.internalFlags & FLAGS_DFSNUMBERED) return OK;
         stack<pair<node, adjEntry>> dfsStack;
 
         for (node n: sourceGraph.nodes) {
@@ -35,18 +30,16 @@ namespace ogdf {
             DFI++;
             theGraph.vertexData[n].visited = 1;
             theGraph.vertexData[n].DFSParent = nullptr;
-            adjEntry ad;
-            for (auto i = n->adjEntries.rbegin(); i != n->adjEntries.rend(); ++i) {
-                ad = *i;
-                if (theGraph.vertexData[ad->twinNode()].visited != 0) {
-                    if (theGraph.vertexData[n].dfi > theGraph.vertexData[ad->twinNode()].dfi &&
-                        theGraph.edgeData[ad->twin()].type != EDGE_DFSCHILD) {
-                        if (theGraph.vertexData[n].leastAncestor > theGraph.vertexData[ad->twinNode()].dfi) {
-                            theGraph.vertexData[n].leastAncestor = theGraph.vertexData[ad->twinNode()].dfi;
+            for (adjEntry adj: n->adjEntries) {
+                if (theGraph.vertexData[adj->twinNode()].visited != 0) {
+                    if (theGraph.vertexData[n].dfi > theGraph.vertexData[adj->twinNode()].dfi &&
+                        theGraph.edgeData[adj->twin()].type != EDGE_DFSCHILD) {
+                        if (theGraph.vertexData[n].leastAncestor > theGraph.vertexData[adj->twinNode()].dfi) {
+                            theGraph.vertexData[n].leastAncestor = theGraph.vertexData[adj->twinNode()].dfi;
                         }
                     }
                 }
-                dfsStack.emplace(ad->twinNode(), ad);
+                dfsStack.emplace(adj->twinNode(), adj);
             }
 
             while (!dfsStack.empty()) {
@@ -65,10 +58,8 @@ namespace ogdf {
                     theGraph.edgeData[e].type = EDGE_DFSCHILD;
                     theGraph.vertexData[uparent].dfsChildArcs.push_back(e);
 
-                    adjEntry a;
-                    for (auto i = u->adjEntries.rbegin(); i != u->adjEntries.rend(); ++i) {
-                        a = *i;
-                        dfsStack.emplace(a->twinNode(), a);
+                    for (adjEntry adj: u->adjEntries) {
+                        dfsStack.emplace(adj->twinNode(), adj);
                     }
                 } else {
                     if (theGraph.vertexData[uparent].dfi < theGraph.vertexData[u].dfi) {
@@ -84,79 +75,10 @@ namespace ogdf {
             }
         }
 
-        /*for (int i = 0; i < 5; ++i) {
-            if (theGraph.vertexData[theGraph.dfi_sorted[i]].DFSParent != nullptr) {
-                cout << "DFSParent von " << i << ": "
-                     << theGraph.vertexData[theGraph.vertexData[theGraph.dfi_sorted[i]].DFSParent].dfi << endl;
-            }
-        }
-
-        for (node n: sourceGraph.nodes) {
-            cout << "DFSParent von " << n << ": " << theGraph.vertexData[n].DFSParent << endl;
-        }*/
-
-        Graph::HiddenEdgeSet hiddenEdges(sourceGraph);
-        vector<edge> edgesV;
-        for (edge ed: sourceGraph.edges) {
-            edgesV.push_back(ed);
-        }
-        for (edge ed: edgesV) {
-            if (theGraph.edgeData[ed->adjSource()].type != EDGE_DFSCHILD &&
-                theGraph.edgeData[ed->adjSource()].type != EDGE_DFSPARENT) {
-                hiddenEdges.hide(ed);
-            }
-        }
-
-        GraphAttributes GA(sourceGraph,
-                           GraphAttributes::nodeGraphics |
-                           GraphAttributes::edgeGraphics |
-                           GraphAttributes::nodeLabel |
-                           GraphAttributes::edgeStyle |
-                           GraphAttributes::nodeStyle |
-                           GraphAttributes::nodeTemplate);
-
-        SugiyamaLayout SL;
-        SL.setRanking(new OptimalRanking);
-        SL.setCrossMin(new MedianHeuristic);
-
-        auto *ohl = new OptimalHierarchyLayout;
-        ohl->layerDistance(30.0);
-        ohl->nodeDistance(25.0);
-        ohl->weightBalancing(0.8);
-        SL.setLayout(ohl);
-
-        SL.call(GA);
-        //GraphIO::write(GA, "test.gml", GraphIO::writeGML);
-        GraphIO::write(GA, "test.svg", GraphIO::drawSVG);
-
-        theGraph.internalFlags |= FLAGS_DFSNUMBERED;
         return OK;
     }
 
     void BoyerMyrvoldEdgeAddition::gp_LowpointAndLeastAncestor() {
-        /*adjEntry adj, lastAdj;
-        node w;
-        for (int i = sourceGraph.numberOfNodes() - 1; i>= 0; --i) {
-            node v = theGraph.dfi_sorted[i];
-            theGraph.vertexData[v].Lowpoint = theGraph.vertexData[v].leastAncestor;
-
-            adj = v->firstAdj();
-            while (adj) {
-                lastAdj = adj;
-                adj = adj->succ();
-                if (theGraph.edgeData[lastAdj].type != EDGE_DFSCHILD && theGraph.edgeData[lastAdj].type != EDGE_DFSPARENT) {
-                    continue;
-                }
-                w = lastAdj->twinNode();
-
-                if (theGraph.vertexData[w].dfi <= i) {
-                    continue;
-                }
-                if (theGraph.vertexData[w].Lowpoint < theGraph.vertexData[v].Lowpoint) {
-                    theGraph.vertexData[v].Lowpoint = theGraph.vertexData[w].Lowpoint;
-                }
-            }
-        }*/
         vector<node> st;
         node u, uneighbor;
         int L, leastAncestor;
@@ -239,7 +161,7 @@ namespace ogdf {
 
     void BoyerMyrvoldEdgeAddition::_EmbedBackEdgeToDescendant(int RootSide, bNode RootVertex, bNode W,
                                                               int WPrevLink) {
-        adjEntry fwdArc = theGraph.vertexData[W.first].adjacentTo;
+        adjEntry fwdArc = theGraph.getVertexData(W).adjacentTo;
         adjEntry backArc = fwdArc->twin();
 
         bNode parentCopy = make_pair(theGraph.vertexData[RootVertex.first].DFSParent, false);
@@ -277,16 +199,15 @@ namespace ogdf {
         }
 
         if (theGraph.vertexData[theGraph.dfi_sorted[leastLowpoint]].dfi >
-            theGraph.vertexData[theGraph.dfi_sorted[theGraph.vertexData[theVertex.first].leastAncestor]].dfi) {
-            leastLowpoint = theGraph.vertexData[theVertex.first].leastAncestor;
+            theGraph.vertexData[theGraph.dfi_sorted[theGraph.getVertexData(theVertex).leastAncestor]].dfi) {
+            leastLowpoint = theGraph.getVertexData(theVertex).leastAncestor;
         }
 
         if (theGraph.vertexData[theGraph.dfi_sorted[leastLowpoint]].dfi < theGraph.getVertexData(I).dfi) {
             return VAS_EXTERNAL;
         }
 
-        //OGDF_ASSERT(!theVertex.second);
-        if (theGraph.vertexData[theVertex.first].adjacentTo != nullptr ||
+        if (theGraph.getVertexData(theVertex).adjacentTo != nullptr ||
             theGraph.getVertexData(theVertex).pertinentBicompList.front() !=
             nullptr) {
             return VAS_INTERNAL;
@@ -358,7 +279,6 @@ namespace ogdf {
         bNode parent = make_pair(theGraph.vertexData[RootVertex.first].DFSParent, false);
         bNode dfsChild = make_pair(RootVertex.first, false);
 
-        //OGDF_ASSERT(!parent.second);
         if (theGraph.getVertexData(dfsChild).Lowpoint < theGraph.getVertexData(I).dfi) {
             theGraph.getVertexData(parent).pertinentBicompList.push_back(RootVertex.first);
             theGraph.bicompListIters[RootVertex.first] = prev(theGraph.getVertexData(parent).pertinentBicompList.end());
@@ -371,20 +291,13 @@ namespace ogdf {
     BoyerMyrvoldEdgeAddition::bNode BoyerMyrvoldEdgeAddition::_GetPertinentChildBicomp(bNode W) {
         node root;
 
-        /* If the bicomp list is empty, then we just return NIL */
-
-        //OGDF_ASSERT(!W.second);
         if ((root = theGraph.getVertexData(W).pertinentBicompList.front()) == nullptr)
             return make_pair(nullptr, true);
-
-        /* Return the RootVertex, which is computed by adding N because we
-            subtracted N before storing it in the bicomp list */
 
         return make_pair(root, true);
     }
 
     bool BoyerMyrvoldEdgeAddition::pertinent(bNode V) {
-        //OGDF_ASSERT(!V.second);
         return theGraph.vertexData[V.first].adjacentTo != nullptr ||
                !theGraph.getVertexData(V).pertinentBicompList.empty();
     }
@@ -427,7 +340,6 @@ namespace ogdf {
                 Zig = nextVertex;
 
                 nextVertex = theGraph.getExtFace(Zag).link[1 ^ ZagPrevLink];
-                bNode t2 = theGraph.getExtFace(nextVertex).link[0];
                 ZagPrevLink = theGraph.getExtFace(nextVertex).link[0] == Zag ? 0 : 1;
                 Zag = nextVertex;
             }
@@ -441,14 +353,12 @@ namespace ogdf {
         for (RootSide = 0; RootSide < 2; ++RootSide) {
             WPrevLink = 1 ^ RootSide;
             W = theGraph.getExtFace(RootVertex).link[RootSide];
-            //cout << "W: " << W.first << ":" << W.second << endl;
 
             while (W != RootVertex) {
-                //cout << "Yeet" << endl;
-                if (theGraph.vertexData[W.first].adjacentTo != nullptr) {
+                if (theGraph.getVertexData(W).adjacentTo != nullptr) {
                     _MergeBicomps();
                     _EmbedBackEdgeToDescendant(RootSide, RootVertex, W, WPrevLink);
-                    theGraph.vertexData[W.first].adjacentTo = nullptr;
+                    theGraph.getVertexData(W).adjacentTo = nullptr;
                 }
 
 
@@ -515,38 +425,22 @@ namespace ogdf {
 
         for (int i = sourceGraph.numberOfNodes() - 1; i >= 0; --i) {
             cur = make_pair(theGraph.dfi_sorted[i], false);
-            for (auto it = theGraph.getVertexData(cur).fwdArcList.rbegin(); it != theGraph.getVertexData(cur).fwdArcList.rend(); it++) {
-                adjEntry aa = *it;
-                W = theGraph.getTarget(aa);
-                theGraph.vertexData[W.first].adjacentTo = aa;
+            for (adjEntry adj: theGraph.getVertexData(cur).fwdArcList) {
+                W = theGraph.getTarget(adj);
+                theGraph.vertexData[W.first].adjacentTo = adj;
                 _WalkUp(cur, W);
             }
 
-            int nt = theGraph.getVertexData(cur).separatedDFSChildList.size();
             for (node n: theGraph.getVertexData(cur).separatedDFSChildList) {
                 if (!theGraph.vertexData[n].pertinentBicompList.empty()) {
                     _WalkDown(cur, make_pair(n, true));
                 }
             }
-            /*for (int j = 0; j < 5; ++j) {
-                cout << j << " Link 0: " << theGraph.extFace[theGraph.dfi_sorted[j]].link[0].first << "|" << theGraph.extFace[theGraph.dfi_sorted[j]].link[0].second << endl;
-                cout << j << " Link 1: " << theGraph.extFace[theGraph.dfi_sorted[j]].link[1].first << "|" << theGraph.extFace[theGraph.dfi_sorted[j]].link[1].second << endl;
-                cout << "---" << endl;
-            }
-            cout << "Root:" << endl;
-            for (int j = 0; j < 5; ++j) {
-                cout << j << " Link 0: " << theGraph.rootExtFace[theGraph.dfi_sorted[j]].link[0].first << "|" << theGraph.rootExtFace[theGraph.dfi_sorted[j]].link[0].second << endl;
-                cout << j << " Link 1: " << theGraph.rootExtFace[theGraph.dfi_sorted[j]].link[1].first << "|" << theGraph.rootExtFace[theGraph.dfi_sorted[j]].link[1].second << endl;
-                cout << "---" << endl;
-            }*/
 
             if (!theGraph.getVertexData(cur).fwdArcList.empty()) {
                 return NONPLANAR;
             }
         }
         return OK;
-    }
-
-    void _initGraphAttributes(Graph &G) {
     }
 } // ogdf

@@ -1,0 +1,33 @@
+Graph::HiddenEdgeSet hiddenEdges(sourceGraph);
+        vector<edge> edgesV;
+        for (edge ed: sourceGraph.edges) {
+            edgesV.push_back(ed);
+        }
+        for (edge ed: edgesV) {
+            if (theGraph.edgeData[ed->adjSource()].type != EDGE_DFSCHILD &&
+                theGraph.edgeData[ed->adjSource()].type != EDGE_DFSPARENT) {
+                hiddenEdges.hide(ed);
+            }
+        }
+
+        GraphAttributes GA(sourceGraph,
+                           GraphAttributes::nodeGraphics |
+                           GraphAttributes::edgeGraphics |
+                           GraphAttributes::nodeLabel |
+                           GraphAttributes::edgeStyle |
+                           GraphAttributes::nodeStyle |
+                           GraphAttributes::nodeTemplate);
+
+        SugiyamaLayout SL;
+        SL.setRanking(new OptimalRanking);
+        SL.setCrossMin(new MedianHeuristic);
+
+        auto *ohl = new OptimalHierarchyLayout;
+        ohl->layerDistance(30.0);
+        ohl->nodeDistance(25.0);
+        ohl->weightBalancing(0.8);
+        SL.setLayout(ohl);
+
+        SL.call(GA);
+        //GraphIO::write(GA, "test.gml", GraphIO::writeGML);
+        GraphIO::write(GA, "test.svg", GraphIO::drawSVG);

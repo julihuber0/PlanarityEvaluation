@@ -15,10 +15,8 @@ namespace ogdf {
             fwdListIters(g),
             bicompListIters(g),
             sepDfsChildIters(g),
-            N(g.numberOfNodes()),
             dfi_sorted(g.numberOfNodes()),
-            buckets(g.numberOfNodes()),
-            internalFlags(-1) {
+            buckets(g.numberOfNodes()) {
         initGraph(g);
     }
 

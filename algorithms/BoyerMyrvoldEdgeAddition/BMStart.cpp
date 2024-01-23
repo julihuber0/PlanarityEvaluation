@@ -1,14 +1,9 @@
 #include <ogdf/fileformats/GraphIO.h>
 #include <ogdf/layered/OptimalHierarchyLayout.h>
 #include <ogdf/basic/graph_generators.h>
-#include <ogdf/planarity/BoyerMyrvold.h>
 #include <iostream>
-#include <bits/stdc++.h>
 #include "BoyerMyrvoldEdgeAddition.h"
 #include <ogdf/planarity/BoothLueker.h>
-
-#define NIL		(-1)
-#define TYPE_UNKNOWN 8
 
 using namespace ogdf;
 using namespace std;
@@ -49,7 +44,13 @@ int main(int argc, char* argv[])
 
     BoyerMyrvoldEdgeAddition b(gd);
     int r = b.gp_Embed();
-    cout << r << endl;
+    if (r == 0) {
+        cout << "Graph is planar" << endl;
+    } else if (r == -3) {
+        cout << "Graph is not planar" << endl;
+    } else {
+        cout << "Something went wrong" << endl;
+    }
 
 
     return 0;

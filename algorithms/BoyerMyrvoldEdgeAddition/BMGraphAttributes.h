@@ -8,20 +8,12 @@
 #include <iostream>
 #include <bits/stdc++.h>
 
-#ifndef PLANARITYEVALUATIONFRAMEWORK_BMGRAPHATTRIBUTES_H
-#define PLANARITYEVALUATIONFRAMEWORK_BMGRAPHATTRIBUTES_H
-
-#define NIL -1
-#define NOTOK -2
-
 using namespace std;
 
 namespace ogdf {
     class BMGraphAttributes {
 
     public: explicit BMGraphAttributes(Graph &g);
-
-        BMGraphAttributes();
 
         typedef struct {
             int dfi;
@@ -47,9 +39,6 @@ namespace ogdf {
             int inversionFlag;
         } extFaceLinkRec;
 
-#define FLAGS_DFSNUMBERED       1
-#define FLAGS_SORTEDBYDFI       2
-
         public:
         typedef pair<node, bool> bNode;
         NodeArray<graphVertex> vertexData;
@@ -58,7 +47,6 @@ namespace ogdf {
         NodeArray<extFaceLinkRec> extFace, rootExtFace;
         vector<vector<node>> buckets;
         vector<pair<bNode, int>> theStack;
-        int N, internalFlags;
         vector<node> dfi_sorted;
         AdjEntryArray<list<adjEntry>::iterator> fwdListIters;
         NodeArray<list<node>::iterator> bicompListIters, sepDfsChildIters;
@@ -74,5 +62,3 @@ namespace ogdf {
         bNode getTarget(adjEntry);
     };
 }
-
-#endif //PLANARITYEVALUATIONFRAMEWORK_BMGRAPHATTRIBUTES_H
