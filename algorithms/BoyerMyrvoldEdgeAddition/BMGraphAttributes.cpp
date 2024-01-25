@@ -20,12 +20,6 @@ namespace ogdf {
         initGraph(g);
     }
 
-    void BMGraphAttributes::_fillVisitedFlags(int value, Graph & g) {
-        for (node n: g.nodes) {
-            vertexData[n].visited = value;
-        }
-    }
-
     void BMGraphAttributes::initGraph(Graph & g) {
         int nc = 0;
         for(node n: g.nodes) {
@@ -33,6 +27,12 @@ namespace ogdf {
             vertexData[n].visited = false;
             vertexData[n].adjacentTo = nullptr;
             vertexData[n].DFSParent = nullptr;
+            vertexData[n].visitor = make_pair(nullptr, false);
+            rootVertexData[n].Lowpoint = vertexData[n].leastAncestor = nc++;
+            rootVertexData[n].visited = false;
+            rootVertexData[n].adjacentTo = nullptr;
+            rootVertexData[n].DFSParent = nullptr;
+            rootVertexData[n].visitor = make_pair(nullptr, false);
             extFace[n].inversionFlag = 0;
             extFace[n].link[0] = extFace[n].link[1] = make_pair(nullptr, false);
             rootExtFace[n].inversionFlag = 0;

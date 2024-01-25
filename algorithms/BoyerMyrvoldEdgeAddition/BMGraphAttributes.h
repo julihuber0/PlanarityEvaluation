@@ -18,6 +18,7 @@ namespace ogdf {
         typedef struct {
             int dfi;
             int visited;
+            pair<node, bool> visitor;
             node DFSParent;
             int leastAncestor, Lowpoint;
             vector<adjEntry> dfsChildArcs;
@@ -50,8 +51,6 @@ namespace ogdf {
         vector<node> dfi_sorted;
         AdjEntryArray<list<adjEntry>::iterator> fwdListIters;
         NodeArray<list<node>::iterator> bicompListIters, sepDfsChildIters;
-
-        void _fillVisitedFlags(int, Graph &);
 
         void initGraph(Graph&);
 

@@ -312,11 +312,11 @@ namespace ogdf {
         ZagPrevLink = 0;
 
         while (Zig != I) {
-            if (theGraph.getVertexData(Zig).visited == I.first->index()) break;
-            if (theGraph.getVertexData(Zag).visited == I.first->index()) break;
+            if (theGraph.getVertexData(Zig).visitor == I) break;
+            if (theGraph.getVertexData(Zag).visitor == I) break;
 
-            theGraph.getVertexData(Zig).visited = I.first->index();
-            theGraph.getVertexData(Zag).visited = I.first->index();
+            theGraph.getVertexData(Zig).visitor = I;
+            theGraph.getVertexData(Zag).visitor = I;
 
             if (Zig.second) {
                 R = Zig;
@@ -421,7 +421,6 @@ namespace ogdf {
         gp_LowpointAndLeastAncestor();
         _CreateSortedSeparatedDFSChildLists();
         _CreateDFSTreeEmbedding();
-        theGraph._fillVisitedFlags(sourceGraph.numberOfNodes(), sourceGraph);
 
         for (int i = sourceGraph.numberOfNodes() - 1; i >= 0; --i) {
             cur = make_pair(theGraph.dfi_sorted[i], false);
