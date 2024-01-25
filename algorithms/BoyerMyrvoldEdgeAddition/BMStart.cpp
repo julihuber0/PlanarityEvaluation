@@ -4,12 +4,14 @@
 #include <iostream>
 #include "BoyerMyrvoldEdgeAddition.h"
 #include <ogdf/planarity/BoothLueker.h>
+#include <chrono>
 
 using namespace ogdf;
 using namespace std;
 
-int main(int argc, char* argv[])
-{
+typedef std::chrono::high_resolution_clock Clock;
+
+void checkInputPlanar(const string &input) {
     Graph G;
     GraphAttributes GA(G,
                        GraphAttributes::nodeGraphics |
@@ -19,50 +21,75 @@ int main(int argc, char* argv[])
                        GraphAttributes::nodeStyle |
                        GraphAttributes::nodeTemplate);
     GA.directed() = false;
-    if(!GraphIO::read(GA, G, "graph_generation/K_4.gml", GraphIO::readGML)) {
+    if (!GraphIO::read(GA, G, input, GraphIO::readGML)) {
         cout << "Read failed" << endl;
+        return;
     }
+    auto start_time = Clock::now();
+    BoyerMyrvoldEdgeAddition b(G);
+    bool isPlanar = b.embed();
+    auto end_time = Clock::now();
+    cout << isPlanar << endl;
+    cout << chrono::duration_cast<chrono::nanoseconds>(end_time - start_time).count() << endl;
+}
 
-    bool correct = true;
-    for (int i = 0; i < 1000; ++i) {
-        Graph gd;
-        randomPlanarConnectedGraph(gd, 1000, 2000);
-        node v = gd.chooseNode([&](node x) {
-            return x->degree() < gd.numberOfNodes() - 1;
-        });
+void checkRandomPlanarGraph(int low_n, int high_n, int iterations, bool addEdge, bool compare) {
+    for (int i = low_n; i <= high_n; ++i) {
+        for (int j = 0; j < iterations; ++j) {
+            Graph gd;
+            randomPlanarConnectedGraph(gd, i, 2 * i);
+            if (addEdge) {
+                node v = gd.chooseNode([&](node x) {
+                    return x->degree() < gd.numberOfNodes() - 1;
+                });
 
-        node u = gd.chooseNode([&](node x) {
-            if (x == v) return false;
-            for (adjEntry adj: v->adjEntries) {
-                if (adj->twinNode() == x) return false;
+                node u = gd.chooseNode([&](node x) {
+                    if (x == v) return false;
+                    for (adjEntry adj: v->adjEntries) {
+                        if (adj->twinNode() == x) return false;
+                    }
+                    return true;
+                });
+                gd.newEdge(v, u);
             }
-            return true;
-        });
 
-        BoothLueker BL;
-        //cout << BL.isPlanar(gd) << endl;
-        gd.newEdge(v, u);
-        //cout << BL.isPlanar(gd) << endl;
-
-        BoyerMyrvoldEdgeAddition b(gd);
-        int r = b.gp_Embed();
-        bool bl = BL.isPlanar(gd);
-        /*if (r == 0) {
-            cout << "Graph is planar" << endl;
-        } else if (r == -3) {
-            cout << "Graph is not planar" << endl;
-        } else {
-            cout << "Something went wrong" << endl;
-        }*/
-        if ((r == -3 && bl) || (r == 0 && !bl)) {
-            cout << "Error with graph " << i << endl;
-            correct = false;
+            auto start_time = Clock::now();
+            BoyerMyrvoldEdgeAddition b(gd);
+            bool isPlanar = b.embed();
+            auto end_time = Clock::now();
+            if (compare) {
+                BoothLueker BL;
+                bool bl = BL.isPlanar(gd);
+                if ((isPlanar && !bl) || (!isPlanar && bl)) {
+                    GraphIO::write(gd, "failed/n_" + to_string(i) + "_m_" + to_string(2*i) + "_it_" + to_string(j) + ".gml", GraphIO::writeGML);
+                }
+            } else {
+                cout << isPlanar << endl;
+                cout << chrono::duration_cast<chrono::nanoseconds>(end_time - start_time).count() << endl;
+            }
         }
     }
-    if (correct) {
-        cout << "Success" << endl;
-    }
+}
 
+int main(int argc, char *argv[]) {
+
+    if (argc == 2) {
+        checkInputPlanar(argv[1]);
+        cout << "Input" << endl;
+    } else if (argc == 6) {
+        int low_n, high_n, iterations;
+        bool addEdge, compare;
+
+        low_n = stoi(argv[1]);
+        high_n = stoi(argv[2]);
+        iterations = stoi(argv[3]);
+        addEdge = stoi(argv[4]);
+        compare = stoi(argv[5]);
+        cout << "Random" << endl;
+        checkRandomPlanarGraph(low_n, high_n, iterations, addEdge, compare);
+    } else {
+        checkRandomPlanarGraph(100, 100, 10, true, true);
+    }
 
     return 0;
 }

@@ -10,7 +10,7 @@ namespace ogdf {
     BoyerMyrvoldEdgeAddition::BoyerMyrvoldEdgeAddition(Graph &g) : theGraph(g), sourceGraph(g) {
     }
 
-    int BoyerMyrvoldEdgeAddition::gp_CreateDFSTree() {
+    void BoyerMyrvoldEdgeAddition::createDfsTree() {
         int DFI = 0;
         node uparent, u;
         adjEntry e;
@@ -74,11 +74,9 @@ namespace ogdf {
                 }
             }
         }
-
-        return OK;
     }
 
-    void BoyerMyrvoldEdgeAddition::gp_LowpointAndLeastAncestor() {
+    void BoyerMyrvoldEdgeAddition::lowpointAndLeastAncestor() {
         vector<node> st;
         node u, uneighbor;
         int L, leastAncestor;
@@ -122,7 +120,7 @@ namespace ogdf {
         }
     }
 
-    void BoyerMyrvoldEdgeAddition::_CreateSortedSeparatedDFSChildLists() {
+    void BoyerMyrvoldEdgeAddition::createSortedSeparatedDfsChildLists() {
         for (node n: sourceGraph.nodes) {
             theGraph.buckets[theGraph.vertexData[n].Lowpoint].push_back(n);
         }
@@ -142,7 +140,7 @@ namespace ogdf {
         }
     }
 
-    void BoyerMyrvoldEdgeAddition::_CreateDFSTreeEmbedding() {
+    void BoyerMyrvoldEdgeAddition::createDfsTreeEmbedding() {
         for (node n: sourceGraph.nodes) {
             if (theGraph.vertexData[n].DFSParent != nullptr) {
                 for (adjEntry adj: n->adjEntries) {
@@ -159,7 +157,7 @@ namespace ogdf {
         }
     }
 
-    void BoyerMyrvoldEdgeAddition::_EmbedBackEdgeToDescendant(int RootSide, bNode RootVertex, bNode W,
+    void BoyerMyrvoldEdgeAddition::embedBackEdgeToDescendant(int RootSide, bNode RootVertex, bNode W,
                                                               int WPrevLink) {
         adjEntry fwdArc = theGraph.getVertexData(W).adjacentTo;
         adjEntry backArc = fwdArc->twin();
@@ -183,7 +181,7 @@ namespace ogdf {
         theGraph.getExtFace(W).link[WPrevLink] = RootVertex;
     }
 
-    int BoyerMyrvoldEdgeAddition::_VertexActiveStatus(bNode theVertex, bNode I) {
+    int BoyerMyrvoldEdgeAddition::vertexActiveStatus(bNode theVertex, bNode I) {
         int leastLowpoint;
         node DFSCHILD;
         if (!theGraph.getVertexData(theVertex).separatedDFSChildList.empty()) {
@@ -215,7 +213,7 @@ namespace ogdf {
         return VAS_INACTIVE;
     }
 
-    void BoyerMyrvoldEdgeAddition::_InvertVertex(bNode V) {
+    void BoyerMyrvoldEdgeAddition::invertVertex(bNode V) {
         theGraph.getVertexData(V).adjList.reverse();
         bNode temp;
         temp = theGraph.getExtFace(V).link[0];
@@ -223,7 +221,7 @@ namespace ogdf {
         theGraph.getExtFace(V).link[1] = temp;
     }
 
-    void BoyerMyrvoldEdgeAddition::_SetSignOfChildEdge(bNode V, int sign) {
+    void BoyerMyrvoldEdgeAddition::setSignOfChildEdge(bNode V, int sign) {
         for (adjEntry a: V.first->adjEntries) {
             if (theGraph.edgeData[a].type == EDGE_DFSCHILD) {
                 theGraph.edgeData[a].sign = sign;
@@ -232,7 +230,7 @@ namespace ogdf {
         }
     }
 
-    void BoyerMyrvoldEdgeAddition::_MergeVertex(bNode W, int WPrevLink, bNode R) {
+    void BoyerMyrvoldEdgeAddition::mergeVertex(bNode W, int WPrevLink, bNode R) {
         if (WPrevLink == 0) {
             theGraph.getVertexData(W).adjList.conc(theGraph.getVertexData(R).adjList);
         } else {
@@ -240,7 +238,7 @@ namespace ogdf {
         }
     }
 
-    void BoyerMyrvoldEdgeAddition::_MergeBicomps() {
+    void BoyerMyrvoldEdgeAddition::mergeBicomps() {
         int Rout, ZPrevLink;
         bNode R, Z;
         bNode extFaceVertex;
@@ -265,17 +263,17 @@ namespace ogdf {
             if (ZPrevLink == Rout) {
                 if (theGraph.getVertexData(R).adjList.cyclicSucc(theGraph.getVertexData(R).adjList.begin()) ==
                     theGraph.getVertexData(R).adjList.begin()) {
-                    _InvertVertex(R);
+                    invertVertex(R);
                 }
-                _SetSignOfChildEdge(R, -1);
+                setSignOfChildEdge(R, -1);
             }
             theGraph.getVertexData(Z).pertinentBicompList.erase(theGraph.bicompListIters[R.first]);
             theGraph.getVertexData(Z).separatedDFSChildList.erase(theGraph.sepDfsChildIters[R.first]);
-            _MergeVertex(Z, ZPrevLink, R);
+            mergeVertex(Z, ZPrevLink, R);
         }
     }
 
-    void BoyerMyrvoldEdgeAddition::_RecordPertinentChildBicomp(bNode I, bNode RootVertex) {
+    void BoyerMyrvoldEdgeAddition::recordPertinentChildBicomp(bNode I, bNode RootVertex) {
         bNode parent = make_pair(theGraph.vertexData[RootVertex.first].DFSParent, false);
         bNode dfsChild = make_pair(RootVertex.first, false);
 
@@ -288,7 +286,7 @@ namespace ogdf {
         }
     }
 
-    BoyerMyrvoldEdgeAddition::bNode BoyerMyrvoldEdgeAddition::_GetPertinentChildBicomp(bNode W) {
+    BoyerMyrvoldEdgeAddition::bNode BoyerMyrvoldEdgeAddition::getPertinentChildBicomp(bNode W) {
         node root;
 
         if ((root = theGraph.getVertexData(W).pertinentBicompList.front()) == nullptr)
@@ -302,7 +300,7 @@ namespace ogdf {
                !theGraph.getVertexData(V).pertinentBicompList.empty();
     }
 
-    void BoyerMyrvoldEdgeAddition::_WalkUp(bNode I, bNode W) {
+    void BoyerMyrvoldEdgeAddition::walkUp(bNode I, bNode W) {
         bNode Zig, Zag, nextVertex;
         bNode ParentCopy, R;
         int ZigPrevLink, ZagPrevLink;
@@ -329,7 +327,7 @@ namespace ogdf {
             if (R.first != nullptr) {
                 ParentCopy = make_pair(theGraph.vertexData[R.first].DFSParent, false);
                 if (ParentCopy != I) {
-                    _RecordPertinentChildBicomp(I, R);
+                    recordPertinentChildBicomp(I, R);
                 }
                 Zig = Zag = ParentCopy;
                 ZigPrevLink = 1;
@@ -346,7 +344,7 @@ namespace ogdf {
         }
     }
 
-    void BoyerMyrvoldEdgeAddition::_WalkDown(bNode I, bNode RootVertex) {
+    void BoyerMyrvoldEdgeAddition::walkDown(bNode I, bNode RootVertex) {
         bNode W, R, X, Y;
         int WPrevLink, Rout, XPrevLink, YPrevLink, RootSide;
         theGraph.theStack.clear();
@@ -356,15 +354,15 @@ namespace ogdf {
 
             while (W != RootVertex) {
                 if (theGraph.getVertexData(W).adjacentTo != nullptr) {
-                    _MergeBicomps();
-                    _EmbedBackEdgeToDescendant(RootSide, RootVertex, W, WPrevLink);
+                    mergeBicomps();
+                    embedBackEdgeToDescendant(RootSide, RootVertex, W, WPrevLink);
                     theGraph.getVertexData(W).adjacentTo = nullptr;
                 }
 
 
                 if (!theGraph.getVertexData(W).pertinentBicompList.empty()) {
                     theGraph.theStack.emplace_back(W, WPrevLink);
-                    R = _GetPertinentChildBicomp(W);
+                    R = getPertinentChildBicomp(W);
 
                     X = theGraph.getExtFace(R).link[0];
                     XPrevLink = theGraph.getExtFace(X).link[1] == R ? 1 : 0;
@@ -376,9 +374,9 @@ namespace ogdf {
                         YPrevLink = 1;
                     }
 
-                    if (_VertexActiveStatus(X, I) == VAS_INTERNAL) {
+                    if (vertexActiveStatus(X, I) == VAS_INTERNAL) {
                         W = X;
-                    } else if (_VertexActiveStatus(Y, I) == VAS_INTERNAL) {
+                    } else if (vertexActiveStatus(Y, I) == VAS_INTERNAL) {
                         W = Y;
                     } else if (pertinent(X)) {
                         W = X;
@@ -389,7 +387,7 @@ namespace ogdf {
                     WPrevLink = W == X ? XPrevLink : YPrevLink;
                     Rout = W == X ? 0 : 1;
                     theGraph.theStack.emplace_back(R, Rout);
-                } else if (_VertexActiveStatus(W, I) == VAS_INACTIVE) {
+                } else if (vertexActiveStatus(W, I) == VAS_INACTIVE) {
                     X = theGraph.getExtFace(W).link[1 ^ WPrevLink];
                     WPrevLink = theGraph.getExtFace(X).link[0] == W ? 0 : 1;
                     W = X;
@@ -414,32 +412,32 @@ namespace ogdf {
         }
     }
 
-    int BoyerMyrvoldEdgeAddition::gp_Embed() {
+    bool BoyerMyrvoldEdgeAddition::embed() {
         bNode W, cur;
 
-        gp_CreateDFSTree();
-        gp_LowpointAndLeastAncestor();
-        _CreateSortedSeparatedDFSChildLists();
-        _CreateDFSTreeEmbedding();
+        createDfsTree();
+        lowpointAndLeastAncestor();
+        createSortedSeparatedDfsChildLists();
+        createDfsTreeEmbedding();
 
         for (int i = sourceGraph.numberOfNodes() - 1; i >= 0; --i) {
             cur = make_pair(theGraph.dfi_sorted[i], false);
             for (adjEntry adj: theGraph.getVertexData(cur).fwdArcList) {
                 W = theGraph.getTarget(adj);
                 theGraph.vertexData[W.first].adjacentTo = adj;
-                _WalkUp(cur, W);
+                walkUp(cur, W);
             }
 
             for (node n: theGraph.getVertexData(cur).separatedDFSChildList) {
                 if (!theGraph.vertexData[n].pertinentBicompList.empty()) {
-                    _WalkDown(cur, make_pair(n, true));
+                    walkDown(cur, make_pair(n, true));
                 }
             }
 
             if (!theGraph.getVertexData(cur).fwdArcList.empty()) {
-                return NONPLANAR;
+                return false;
             }
         }
-        return OK;
+        return true;
     }
 } // ogdf

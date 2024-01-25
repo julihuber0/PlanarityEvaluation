@@ -12,13 +12,6 @@
 #ifndef PLANARITYEVALUATIONFRAMEWORK_BOYERMYRVOLDEDGEADDITION_H
 #define PLANARITYEVALUATIONFRAMEWORK_BOYERMYRVOLDEDGEADDITION_H
 
-#define NIL		(-1)
-#define TYPE_UNKNOWN 8
-#define OK 0
-#define NONPLANAR -3
-
-#define TYPE_UNKNOWN            0
-
 #define EDGE_DFSCHILD           1
 #define EDGE_FORWARD            2
 #define EDGE_BACK               3
@@ -28,10 +21,6 @@
 #define VAS_INTERNAL    1
 #define VAS_EXTERNAL    2
 
-#define VERTEX_HIGH_RXW         6
-#define VERTEX_LOW_RXW          7
-#define VERTEX_HIGH_RYW         8
-#define VERTEX_LOW_RYW          9
 using namespace std;
 
 namespace ogdf {
@@ -45,37 +34,37 @@ namespace ogdf {
 
         BMGraphAttributes theGraph;
 
-        int gp_CreateDFSTree();
+        void createDfsTree();
 
-        void gp_LowpointAndLeastAncestor();
+        void lowpointAndLeastAncestor();
 
-        void _CreateSortedSeparatedDFSChildLists();
+        void createSortedSeparatedDfsChildLists();
 
-        void _CreateDFSTreeEmbedding();
+        void createDfsTreeEmbedding();
 
-        void _EmbedBackEdgeToDescendant(int, bNode, bNode, int);
+        void embedBackEdgeToDescendant(int, bNode, bNode, int);
 
-        int _VertexActiveStatus(bNode, bNode);
+        int vertexActiveStatus(bNode, bNode);
 
-        void _InvertVertex(bNode);
+        void invertVertex(bNode);
 
-        void _SetSignOfChildEdge(bNode, int);
+        void setSignOfChildEdge(bNode, int);
 
-        void _MergeVertex(bNode, int, bNode);
+        void mergeVertex(bNode, int, bNode);
 
-        void _MergeBicomps();
+        void mergeBicomps();
 
-        void _RecordPertinentChildBicomp(bNode, bNode);
+        void recordPertinentChildBicomp(bNode, bNode);
 
         bool pertinent(bNode);
 
-        void _WalkUp(bNode, bNode);
+        void walkUp(bNode, bNode);
 
-        void _WalkDown(bNode, bNode);
+        void walkDown(bNode, bNode);
 
-        int gp_Embed();
+        bool embed();
 
-        bNode _GetPertinentChildBicomp(bNode);
+        bNode getPertinentChildBicomp(bNode);
     };
 
 
