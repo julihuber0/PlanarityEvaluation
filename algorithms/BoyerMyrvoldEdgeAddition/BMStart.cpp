@@ -75,7 +75,6 @@ int main(int argc, char *argv[]) {
 
     if (argc == 2) {
         checkInputPlanar(argv[1]);
-        cout << "Input" << endl;
     } else if (argc == 6) {
         int low_n, high_n, iterations;
         bool addEdge, compare;
@@ -85,7 +84,6 @@ int main(int argc, char *argv[]) {
         iterations = stoi(argv[3]);
         addEdge = stoi(argv[4]);
         compare = stoi(argv[5]);
-        cout << "Random" << endl;
         checkRandomPlanarGraph(low_n, high_n, iterations, addEdge, compare);
     } else {
         checkRandomPlanarGraph(100, 100, 10, true, true);
