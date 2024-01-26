@@ -34,6 +34,7 @@ void checkInputPlanar(const string &input) {
 }
 
 void checkRandomPlanarGraph(int low_n, int high_n, int iterations, bool addEdge, bool compare) {
+    bool correct = false;
     for (int i = low_n; i <= high_n; ++i) {
         for (int j = 0; j < iterations; ++j) {
             Graph gd;
@@ -58,16 +59,22 @@ void checkRandomPlanarGraph(int low_n, int high_n, int iterations, bool addEdge,
             bool isPlanar = b.embed();
             auto end_time = Clock::now();
             if (compare) {
+                correct = true;
                 BoothLueker BL;
                 bool bl = BL.isPlanar(gd);
                 if ((isPlanar && !bl) || (!isPlanar && bl)) {
                     GraphIO::write(gd, "failed/n_" + to_string(i) + "_m_" + to_string(2*i) + "_it_" + to_string(j) + ".gml", GraphIO::writeGML);
+                    cout << "Error with " << i << " vertices and " << 2 * i << " edges in iteration " << j << endl;
+                    correct = false;
                 }
             } else {
                 cout << isPlanar << endl;
                 cout << chrono::duration_cast<chrono::nanoseconds>(end_time - start_time).count() << endl;
             }
         }
+    }
+    if (correct) {
+        cout << "Success" << endl;
     }
 }
 
