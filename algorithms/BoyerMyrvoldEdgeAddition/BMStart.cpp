@@ -13,24 +13,19 @@ typedef std::chrono::high_resolution_clock Clock;
 
 void checkInputPlanar(const string &input) {
     Graph G;
-    GraphAttributes GA(G,
-                       GraphAttributes::nodeGraphics |
-                       GraphAttributes::edgeGraphics |
-                       GraphAttributes::nodeLabel |
-                       GraphAttributes::edgeStyle |
-                       GraphAttributes::nodeStyle |
-                       GraphAttributes::nodeTemplate);
-    GA.directed() = false;
+    GraphAttributes GA;
     if (!GraphIO::read(GA, G, input, GraphIO::readGML)) {
         cout << "Read failed" << endl;
         return;
     }
+    string graphClass = GA.label(G.nodes.head());
+    int n = G.numberOfNodes();
+    int m = G.numberOfEdges();
     auto start_time = Clock::now();
     BoyerMyrvoldEdgeAddition b(G);
     bool isPlanar = b.embed();
     auto end_time = Clock::now();
-    cout << isPlanar << endl;
-    cout << chrono::duration_cast<chrono::nanoseconds>(end_time - start_time).count() << endl;
+    cout << "BoyerMyrvoldEdgeAddition;" << isPlanar << ";" << graphClass << ";" << n << ";" << m << ";" << n + m << ";" << chrono::duration_cast<chrono::milliseconds>(end_time - start_time).count();
 }
 
 void checkRandomPlanarGraph(int low_n, int high_n, int iterations, bool addEdge, bool compare) {

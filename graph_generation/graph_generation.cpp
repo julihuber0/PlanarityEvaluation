@@ -6,29 +6,26 @@
 #include <ogdf/layered/OptimalHierarchyLayout.h>
 
 using namespace ogdf;
+using namespace std;
 
-int randomGraphs() {
-    for (int i = 1; i <= 20; ++i)
-    {
-        Graph G;
-        randomSimpleConnectedGraph(G, 2000 * i, 2001 * i);
-        GraphIO::write(G, "random" + std::to_string(i) + ".gml", GraphIO::writeGML);
-    }
-
-    return 0;
+void generateRandomPlanarConnectedGraph(int n, int m, int id) {
+    Graph G;
+    randomPlanarConnectedGraph(G, n, m);
+    GraphAttributes GA(G);
+    GA.label(G.nodes.head()) = "random_planar_connected";
+    GraphIO::write(GA, "randomPlanarConnected_" + toString(id) + ".gml", GraphIO::writeGML);
 }
 
-int main() {
+int main(int argc, char *argv[]) {
 
-    Graph K_4;
-    completeGraph(K_4, 4);
-    GraphIO::write(K_4, "K_4.gml", GraphIO::writeGML);
-
-    Graph K_15;
-    completeGraph(K_15, 15);
-    GraphIO::write(K_15, "K_15.gml", GraphIO::writeGML);
-
-    randomGraphs();
+    if (argc == 4) {
+        int n = stoi(argv[1]);
+        int m = stoi(argv[2]);
+        int id = stoi(argv[3]);
+        generateRandomPlanarConnectedGraph(n, m, id);
+    } else {
+        cout << "Please provide valid arguments." << endl;
+    }
 
     return 0;
 }
