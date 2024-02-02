@@ -10,9 +10,9 @@ using namespace std;
 
 typedef std::chrono::high_resolution_clock Clock;
 
-void checkInputPlanar(const string &input) {
+void checkInputPlanar(const string &input, const string &id) {
     Graph G;
-    GraphAttributes GA;
+    GraphAttributes GA(G, GraphAttributes::nodeLabel);
     if (!GraphIO::read(GA, G, input, GraphIO::readGML)) {
         cout << "Read failed" << endl;
         return;
@@ -25,12 +25,12 @@ void checkInputPlanar(const string &input) {
     auto start_time = Clock::now();
     bool isPlanar = BM.isPlanar(G);
     auto end_time = Clock::now();
-    cout << "BoyerMyrvold;" << isPlanar << ";" << graphClass << ";" << n << ";" << m << ";" << n + m << ";" << chrono::duration_cast<chrono::milliseconds>(end_time - start_time).count();
+    cout << "BoyerMyrvold," << isPlanar << "," << id << "," << graphClass << "," << n << "," << m << "," << n + m << "," << chrono::duration_cast<chrono::microseconds>(end_time - start_time).count() << endl;
 }
 
 int main(int argc, char *argv[]) {
-    if (argc == 2) {
-        checkInputPlanar(argv[1]);
+    if (argc == 3) {
+        checkInputPlanar(argv[1], argv[2]);
     } else {
         cout << "Please provide valid arguments." << endl;
     }

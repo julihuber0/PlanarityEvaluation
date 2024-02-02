@@ -11,9 +11,9 @@ using namespace std;
 
 typedef std::chrono::high_resolution_clock Clock;
 
-void checkInputPlanar(const string &input) {
+void checkInputPlanar(const string &input, const string &id) {
     Graph G;
-    GraphAttributes GA;
+    GraphAttributes GA(G, GraphAttributes::nodeLabel);
     if (!GraphIO::read(GA, G, input, GraphIO::readGML)) {
         cout << "Read failed" << endl;
         return;
@@ -25,7 +25,7 @@ void checkInputPlanar(const string &input) {
     BoyerMyrvoldEdgeAddition b(G);
     bool isPlanar = b.embed();
     auto end_time = Clock::now();
-    cout << "BoyerMyrvoldEdgeAddition;" << isPlanar << ";" << graphClass << ";" << n << ";" << m << ";" << n + m << ";" << chrono::duration_cast<chrono::milliseconds>(end_time - start_time).count();
+    cout << "BoyerMyrvoldEdgeAddition," << isPlanar << ","  << id << "," << graphClass << "," << n << "," << m << "," << n + m << "," << chrono::duration_cast<chrono::microseconds>(end_time - start_time).count() << endl;
 }
 
 void checkRandomPlanarGraph(int low_n, int high_n, int iterations, bool addEdge, bool compare) {
@@ -75,8 +75,8 @@ void checkRandomPlanarGraph(int low_n, int high_n, int iterations, bool addEdge,
 
 int main(int argc, char *argv[]) {
 
-    if (argc == 2) {
-        checkInputPlanar(argv[1]);
+    if (argc == 3) {
+        checkInputPlanar(argv[1], argv[2]);
     } else if (argc == 6) {
         int low_n, high_n, iterations;
         bool addEdge, compare;

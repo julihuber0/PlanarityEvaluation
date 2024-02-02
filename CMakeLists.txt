@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.5)
 project(PlanarityEvaluationFramework CXX)
 
-set(OGDF_CONFIG_SEARCH_PATH CACHE PATH "C-Projects/OGDF/debug")
+set(OGDF_CONFIG_SEARCH_PATH CACHE PATH "C-Projects/OGDF/release")
 
-set(CMAKE_PREFIX_PATH "/home/huber/C-Projects/OGDF/debug")
+set(CMAKE_PREFIX_PATH "/scratch/huber/C-Projects/OGDF/release")
 
 find_package(OGDF REQUIRED)
 if(NOT OGDF_FOUND)
@@ -28,6 +28,7 @@ target_link_libraries(Graph_Generator OGDF)
 target_link_libraries(OGDF_Test OGDF)
 target_link_libraries(BoyerMyrvoldEdgeAddition OGDF)
 target_link_libraries(BoothLueker OGDF)
+target_link_libraries(BoyerMyrvoldOGDF OGDF)
 
 target_include_directories(Test PRIVATE "${OGDF_INCLUDE_DIRS}")
 target_include_directories(Graph_Generator PRIVATE "${OGDF_INCLUDE_DIRS}")
