@@ -11,9 +11,9 @@ using namespace std;
 void generateRandomPlanarConnectedGraph(int n, int m, int id) {
     Graph G;
     randomPlanarConnectedGraph(G, n, m);
-    GraphAttributes GA(G);
+    GraphAttributes GA(G, GraphAttributes::nodeLabel);
     GA.label(G.nodes.head()) = "random_planar_connected";
-    GraphIO::write(GA, "randomPlanarConnected_" + toString(id) + ".gml", GraphIO::writeGML);
+    GraphIO::write(GA, "randomPlanarConnected_" + to_string(id) + ".gml", GraphIO::writeGML);
 }
 
 int main(int argc, char *argv[]) {
