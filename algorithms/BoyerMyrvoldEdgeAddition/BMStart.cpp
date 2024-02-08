@@ -25,7 +25,7 @@ void checkInputPlanar(const string &input, const string &id) {
     BoyerMyrvoldEdgeAddition b(G);
     bool isPlanar = b.embed();
     auto end_time = Clock::now();
-    cout << "BoyerMyrvoldEdgeAddition," << isPlanar << ","  << id << "," << graphClass << "," << n << "," << m << "," << n + m << "," << chrono::duration_cast<chrono::microseconds>(end_time - start_time).count() << endl;
+    cout << "BoyerMyrvoldEdgeAddition," << isPlanar << ","  << id << "," << graphClass << "," << n << "," << m << "," << n + m << "," << chrono::duration_cast<chrono::nanoseconds>(end_time - start_time).count() << endl;
 }
 
 void checkRandomPlanarGraph(int low_n, int high_n, int iterations, bool addEdge, bool compare) {

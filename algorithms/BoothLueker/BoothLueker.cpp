@@ -1,6 +1,5 @@
 #include <ogdf/fileformats/GraphIO.h>
 #include <ogdf/layered/OptimalHierarchyLayout.h>
-#include <ogdf/basic/graph_generators.h>
 #include <iostream>
 #include <ogdf/planarity/BoothLueker.h>
 #include <chrono>
@@ -25,7 +24,7 @@ void checkInputPlanar(const string &input, const string &id) {
     auto start_time = Clock::now();
     bool isPlanar = BL.isPlanar(G);
     auto end_time = Clock::now();
-    cout << "BoothLueker," << isPlanar << "," << id << "," << graphClass << "," << n << "," << m << "," << n + m << "," << chrono::duration_cast<chrono::microseconds>(end_time - start_time).count() << endl;
+    cout << "BoothLueker," << isPlanar << "," << id << "," << graphClass << "," << n << "," << m << "," << n + m << "," << chrono::duration_cast<chrono::nanoseconds >(end_time - start_time).count() << endl;
 }
 
 int main(int argc, char *argv[]) {

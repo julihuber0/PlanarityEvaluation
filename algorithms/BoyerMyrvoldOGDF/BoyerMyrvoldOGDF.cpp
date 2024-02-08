@@ -25,7 +25,7 @@ void checkInputPlanar(const string &input, const string &id) {
     auto start_time = Clock::now();
     bool isPlanar = BM.isPlanar(G);
     auto end_time = Clock::now();
-    cout << "BoyerMyrvold," << isPlanar << "," << id << "," << graphClass << "," << n << "," << m << "," << n + m << "," << chrono::duration_cast<chrono::microseconds>(end_time - start_time).count() << endl;
+    cout << "BoyerMyrvold," << isPlanar << "," << id << "," << graphClass << "," << n << "," << m << "," << n + m << "," << chrono::duration_cast<chrono::nanoseconds>(end_time - start_time).count() << endl;
 }
 
 int main(int argc, char *argv[]) {
