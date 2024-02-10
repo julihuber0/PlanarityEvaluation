@@ -18,7 +18,6 @@ message(${OGDF_DIR})
 
 file(GLOB SOURCES algorithms/BoyerMyrvoldEdgeAddition/*.cpp)
 
-add_executable(Test main.cpp)
 add_executable(Graph_Generator graph_generation/graph_generation.cpp)
 add_executable(OGDF_Test ogdf_test.cpp)
 add_executable(Adjacency_Generator graph_generation/gml_to_list.cpp)
@@ -26,18 +25,16 @@ add_executable(BoyerMyrvoldEdgeAddition ${SOURCES})
 add_executable(BoothLueker algorithms/BoothLueker/BoothLueker.cpp)
 add_executable(BoyerMyrvoldOGDF algorithms/BoyerMyrvoldOGDF/BoyerMyrvoldOGDF.cpp)
 
-set_target_properties(Graph_Generator PROPERTIES RUNTIME_OUTPUT_DIRECTORY graph_generation)
-
-target_link_libraries(Test OGDF)
 target_link_libraries(Graph_Generator OGDF)
 target_link_libraries(OGDF_Test OGDF)
 target_link_libraries(BoyerMyrvoldEdgeAddition OGDF)
 target_link_libraries(BoothLueker OGDF)
 target_link_libraries(BoyerMyrvoldOGDF OGDF)
+target_link_libraries(Adjacency_Generator OGDF)
 
-target_include_directories(Test PRIVATE "${OGDF_INCLUDE_DIRS}")
 target_include_directories(Graph_Generator PRIVATE "${OGDF_INCLUDE_DIRS}")
 target_include_directories(OGDF_Test PRIVATE "${OGDF_INCLUDE_DIRS}")
 target_include_directories(BoyerMyrvoldEdgeAddition PRIVATE "${OGDF_INCLUDE_DIRS}")
 target_include_directories(BoothLueker PRIVATE "${OGDF_INCLUDE_DIRS}")
 target_include_directories(BoyerMyrvoldOGDF PRIVATE "${OGDF_INCLUDE_DIRS}")
+target_include_directories(Adjacency_Generator PRIVATE "${OGDF_INCLUDE_DIRS}")

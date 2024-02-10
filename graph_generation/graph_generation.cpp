@@ -14,7 +14,7 @@ void generateRandomPlanarConnectedGraphs(int n, int m, int number) {
         randomPlanarConnectedGraph(G, n, m);
         GraphAttributes GA(G, GraphAttributes::nodeLabel);
         GA.label(G.nodes.head()) = "random_planar_connected";
-        GraphIO::write(GA, "randomPlanarConnected_" + to_string(i) + ".gml", GraphIO::writeGML);
+        GraphIO::write(GA, "randomPlanarConnected_" + to_string(n) + "_" + to_string(m) + "_" + to_string(i) + ".gml", GraphIO::writeGML);
     }
 }
 
